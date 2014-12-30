@@ -44,7 +44,6 @@ public class KafkaProducer implements Consumer {
     @Override
     public void send(String topic, Object obj) {
         KeyedMessage<String, String> data = new KeyedMessage<>(topic, (String) obj);
-        System.out.println("TOPIC: " +  topic+ " MSG: " + obj);
         producer.send(data);
     }
 

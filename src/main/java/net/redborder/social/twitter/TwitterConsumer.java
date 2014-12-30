@@ -56,10 +56,9 @@ public class TwitterConsumer {
 
         System.out.println("RUNNING TASK: " + runningTask);
         taskToRemove.removeAll(newTask);
-        System.out.println("TASK TO REMOVE: "+ taskToRemove );
+        System.out.println("TASK TO REMOVE: " + taskToRemove);
         newTask.removeAll(runningTask);
         System.out.println("TASK TO ADD: " + newTask);
-        System.out.println("RUNNING TASK: " + runningTask);
 
         for (TwitterSensor twitterSensor : twitterSensors) {
             if (newTask.contains(twitterSensor.getConsumerKey())) {
@@ -72,6 +71,8 @@ public class TwitterConsumer {
             runningTask.remove(task);
             closeClient(task);
         }
+
+        System.out.println("RUNNING TASK: " + runningTask);
     }
 
     public void closeClient(String task){

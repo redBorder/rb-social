@@ -24,7 +24,7 @@ public class ConfigFile {
 
     private static ConfigFile theInstance = null;
     private static final Object initMonitor = new Object();
-    private final String CONFIG_FILE_PATH = "/opt/rb/etc/redBorder-BI/config_social.yml";
+    private final String CONFIG_FILE_PATH = "/opt/rb/etc/rb-social-bi/config.yml";
     private Map<SensorType, List<Sensor>> _sensors;
     private Map<String, Object> _general;
 
