@@ -8,8 +8,11 @@ import net.redborder.taskassigner.ZkTasksHandler;
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
 
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by andresgomez on 29/12/14.
@@ -20,37 +23,48 @@ public class SocialServer {
     static TwitterManager twitterManager;
 
     public static void main(String[] args) {
-        ConfigFile.init();
-        config = ConfigFile.getInstance();
+        try {
+            ConfigFile.init();
 
-        tasksHandler = new ZkTasksHandler(config.getZkConnect());
-        List<Map<String, Object>> task = config.getSensors(SensorType.TWITTER);
-        tasksHandler.setTasks(task);
-        twitterManager = new TwitterManager();
-        tasksHandler.addListener(twitterManager);
+            config = ConfigFile.getInstance();
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() {
-                System.out.println("Exiting...");
-                tasksHandler.end();
-                twitterManager.end();
-            }
-        });
+            tasksHandler = new ZkTasksHandler(config.getZkConnect());
+            List<Map<String, Object>> task = config.getSensors(SensorType.TWITTER);
+            tasksHandler.setTasks(task);
+            twitterManager = new TwitterManager();
+            tasksHandler.addListener(twitterManager);
 
-        // Add signal to reload config
-        Signal.handle(new Signal("HUP"), new SignalHandler() {
-            public void handle(Signal signal) {
-                System.out.println("Reload received");
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                public void run() {
+                    System.out.println("Exiting...");
+                    tasksHandler.end();
+                    twitterManager.end();
+                }
+            });
 
-                // Reload the config file
-                ConfigFile.getInstance().reload();
+            // Add signal to reload config
+            Signal.handle(new Signal("HUP"), new SignalHandler() {
+                public void handle(Signal signal) {
+                    System.out.println("Reload received");
 
-                // Now reload the consumer and the tasks
-                List<Map<String, Object>> task = config.getSensors(SensorType.TWITTER);
-                tasksHandler.setTasks(task);
-                tasksHandler.reload();
-                twitterManager.reload();
-            }
-        });
+                    // Reload the config file
+                    try {
+                        ConfigFile.getInstance().reload();
+                    } catch (FileNotFoundException e) {
+                        Logger.getLogger(SocialServer.class.getName()).log(Level.SEVERE, "config file not found, can't reload!");
+                    }
+
+                    // Now reload the consumer and the tasks
+                    List<Map<String, Object>> task = config.getSensors(SensorType.TWITTER);
+                    tasksHandler.setTasks(task);
+                    tasksHandler.reload();
+                    twitterManager.reload();
+                }
+            });
+
+        } catch (FileNotFoundException e) {
+            Logger.getLogger(SocialServer.class.getName()).log(Level.SEVERE, "config file not found");
+
+        }
     }
 }

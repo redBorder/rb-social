@@ -24,7 +24,7 @@ public class ConfigFile {
 
     private static ConfigFile theInstance = null;
     private static final Object initMonitor = new Object();
-    private final String CONFIG_FILE_PATH = "/opt/rb/etc/rb-social-bi/config.yml";
+    private final String CONFIG_FILE_PATH = "/opt/rb/etc/rb-social/config.yml";
     private Map<SensorType, List<Sensor>> _sensors;
     private Map<String, Object> _general;
 
@@ -43,7 +43,7 @@ public class ConfigFile {
         return theInstance;
     }
 
-    public static void init() {
+    public static void init() throws FileNotFoundException {
         synchronized (initMonitor) {
             if (theInstance == null) {
                 theInstance = new ConfigFile();
@@ -55,14 +55,13 @@ public class ConfigFile {
     /**
      * Constructor
      */
-    public ConfigFile() {
+    public ConfigFile() throws FileNotFoundException {
         reload();
     }
 
-    public void reload() {
+    public void reload() throws FileNotFoundException {
         _sensors = new HashMap<>();
 
-        try {
             Map<String, Object> map = (Map<String, Object>) Yaml.load(new File(CONFIG_FILE_PATH));
 
             /* Production Config */
@@ -109,9 +108,6 @@ public class ConfigFile {
             _sensors.put(SensorType.TWITTER, twitterList);
             /* General Config */
             _general = (Map<String, Object>) map.get("general");
-        } catch (FileNotFoundException e) {
-            Logger.getLogger(ConfigFile.class.getName()).log(Level.SEVERE, "config file not found");
-        }
     }
 
     public <T> T getSensors(SensorType sensorType) {
