@@ -62,14 +62,14 @@ public class ConfigFile {
     public void reload() throws FileNotFoundException {
         _sensors = new HashMap<>();
 
-            Map<String, Object> map = (Map<String, Object>) Yaml.load(new File(CONFIG_FILE_PATH));
+        Map<String, Object> map = (Map<String, Object>) Yaml.load(new File(CONFIG_FILE_PATH));
 
             /* Production Config */
-            List<Map<String, Object>> sensors = (List<Map<String, Object>>) map.get("sensors");
+        List<Map<String, Object>> sensors = (List<Map<String, Object>>) map.get("sensors");
 
-            List<Sensor> twitterList = new ArrayList<>();
-            List<Sensor> facebookList = new ArrayList<>();
+        List<Sensor> twitterList = new ArrayList<>();
 
+        if (sensors != null) {
             for (Map<String, Object> sensor : sensors) {
                 String sensorType = (String) sensor.get("type");
                 switch (sensorType) {
@@ -99,15 +99,13 @@ public class ConfigFile {
 
                         twitterList.add(conf);
                         break;
-                    case "facebook":
-                        break;
-
                 }
             }
+        }
 
-            _sensors.put(SensorType.TWITTER, twitterList);
+        _sensors.put(SensorType.TWITTER, twitterList);
             /* General Config */
-            _general = (Map<String, Object>) map.get("general");
+        _general = (Map<String, Object>) map.get("general");
     }
 
     public <T> T getSensors(SensorType sensorType) {

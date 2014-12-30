@@ -21,10 +21,12 @@ public class SocialServer {
     static ZkTasksHandler tasksHandler;
     static ConfigFile config;
     static TwitterManager twitterManager;
+    static Object running;
 
     public static void main(String[] args) {
         try {
             ConfigFile.init();
+            running = new Object();
 
             config = ConfigFile.getInstance();
 
@@ -39,14 +41,16 @@ public class SocialServer {
                     System.out.println("Exiting...");
                     tasksHandler.end();
                     twitterManager.end();
+                    synchronized (running) {
+                        running.notifyAll();
+                    }
                 }
             });
 
             // Add signal to reload config
             Signal.handle(new Signal("HUP"), new SignalHandler() {
                 public void handle(Signal signal) {
-                    System.out.println("Reload received");
-
+                    System.out.println("Reload received!");
                     // Reload the config file
                     try {
                         ConfigFile.getInstance().reload();
@@ -57,14 +61,22 @@ public class SocialServer {
                     // Now reload the consumer and the tasks
                     List<Map<String, Object>> task = config.getSensors(SensorType.TWITTER);
                     tasksHandler.setTasks(task);
-                    tasksHandler.reload();
                     twitterManager.reload();
+                    tasksHandler.reload();
+                    System.out.println("Reload finished!");
                 }
             });
 
+            synchronized (running) {
+                running.wait();
+            }
+
         } catch (FileNotFoundException e) {
             Logger.getLogger(SocialServer.class.getName()).log(Level.SEVERE, "config file not found");
-
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+
     }
 }
