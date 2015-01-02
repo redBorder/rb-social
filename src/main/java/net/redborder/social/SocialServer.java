@@ -30,7 +30,7 @@ public class SocialServer {
 
             config = ConfigFile.getInstance();
 
-            tasksHandler = new ZkTasksHandler(config.getZkConnect());
+            tasksHandler = new ZkTasksHandler(config.getZkConnect(), "/rb-social");
             List<Map<String, Object>> task = config.getSensors(SensorType.TWITTER);
             tasksHandler.setTasks(task);
             twitterManager = new TwitterManager();
