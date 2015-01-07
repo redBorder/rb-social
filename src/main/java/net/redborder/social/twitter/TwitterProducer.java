@@ -129,11 +129,11 @@ public class TwitterProducer extends Thread {
             String image_url = (String) user.get("profile_image_url_https");
             String from = (String) user.get("location");
 
-            if (id != null)
+            if (id != null && id.length()>0)
                 simpleTweet.put("user_id", id);
-            if (name != null)
+            if (name != null && name.length()>0)
                 simpleTweet.put("user_name", name);
-            if (username != null)
+            if (username != null && username.length()>0)
                 simpleTweet.put("user_screen_name", username);
             if (followers != null)
                 simpleTweet.put("followers", followers);
@@ -141,11 +141,11 @@ public class TwitterProducer extends Thread {
                 simpleTweet.put("friends", friends);
             if (tweets != null)
                 simpleTweet.put("user_msgs", tweets);
-            if (language != null)
+            if (language != null && language.length()>0)
                 simpleTweet.put("user_language", language);
-            if (image_url != null)
+            if (image_url != null && image_url.length()>0)
                 simpleTweet.put("user_profile_img_https", image_url);
-            if (from != null)
+            if (from != null && from.length()>0)
                 simpleTweet.put("user_from", from);
         }
 

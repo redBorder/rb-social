@@ -27,6 +27,7 @@ public class ConfigFile {
     private final String CONFIG_FILE_PATH = "/opt/rb/etc/rb-social/config.yml";
     private Map<SensorType, List<Sensor>> _sensors;
     private Map<String, Object> _general;
+    private Map<SensorType, List<Map<String, Object>>> _sensorNames;
 
     public static ConfigFile getInstance() {
         if (theInstance == null) {
@@ -61,6 +62,7 @@ public class ConfigFile {
 
     public void reload() throws FileNotFoundException {
         _sensors = new HashMap<>();
+        _sensorNames = new HashMap<>();
 
         Map<String, Object> map = (Map<String, Object>) Yaml.load(new File(CONFIG_FILE_PATH));
 
@@ -68,12 +70,15 @@ public class ConfigFile {
         List<Map<String, Object>> sensors = (List<Map<String, Object>>) map.get("sensors");
 
         List<Sensor> twitterList = new ArrayList<>();
+        List<Map<String, Object>> sensorNames = new ArrayList<>();
 
         if (sensors != null) {
             for (Map<String, Object> sensor : sensors) {
                 String sensorType = (String) sensor.get("type");
                 switch (sensorType) {
                     case "twitter":
+                        Map<String, Object> sensorName = new HashMap<>();
+
                         String consumer_key = (String) sensor.get("consumer_key");
                         String consumer_secret = (String) sensor.get("consumer_secret");
                         String token_key = (String) sensor.get("token_key");
@@ -82,6 +87,7 @@ public class ConfigFile {
                         List<List<String>> locations_filters = (List<List<String>>) sensor.get("location_filter");
                         List<String> texts_filter = (List<String>) sensor.get("text_filter");
 
+                        sensorName.put("sensor_name", sensor_name + "_twitter");
 
                         TwitterSensor conf = new TwitterSensor(sensor_name);
                         conf.setConsumerKey(consumer_key);
@@ -97,12 +103,14 @@ public class ConfigFile {
                             conf.setTextFilter(texts_filter);
                         }
 
+                        sensorNames.add(sensorName);
                         twitterList.add(conf);
                         break;
                 }
             }
         }
 
+        _sensorNames.put(SensorType.TWITTER, sensorNames);
         _sensors.put(SensorType.TWITTER, twitterList);
             /* General Config */
         _general = (Map<String, Object>) map.get("general");
@@ -111,6 +119,10 @@ public class ConfigFile {
     public <T> T getSensors(SensorType sensorType) {
         T sensors = (T) _sensors.get(sensorType);
         return sensors;
+    }
+
+    public List<Map<String, Object>> getSensorNames(SensorType type){
+        return _sensorNames.get(type);
     }
 
     public String getZkConnect() {

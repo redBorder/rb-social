@@ -13,7 +13,7 @@ public abstract class Sensor extends HashMap<String, Object>{
     }
 
     public Sensor(Map<? extends String, ? extends Object> m){
-        inizializeData(m);
+        initializeData(m);
     }
 
     public String getSensorName() {
@@ -33,7 +33,7 @@ public abstract class Sensor extends HashMap<String, Object>{
         put(dataId, dataValue);
     }
 
-    public void inizializeData(Map<? extends String, ? extends Object> m){
+    public void initializeData(Map<? extends String, ? extends Object> m){
         putAll(m);
     }
 }
