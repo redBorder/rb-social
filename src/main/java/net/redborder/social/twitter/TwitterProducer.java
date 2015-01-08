@@ -82,7 +82,7 @@ public class TwitterProducer extends Thread {
                             producer.send("rb_hashtag", mention);
                     }
 
-                    if(semantria != null) {
+                    if (semantria != null) {
                         List<String> msgs = semantria.getEvents();
                         for (String msgToSend : msgs)
                             producer.send("rb_social", msgToSend);
@@ -205,6 +205,37 @@ public class TwitterProducer extends Thread {
         List<Map<String, Object>> user_mentions = (ArrayList<Map<String, Object>>) entities.get("user_mentions");
 
         simpleTweet.put("sensor_name", sensorName);
+
+        String hashtagStr = "";
+        for (Map<String, Object> hashtag : hashtags) {
+            if (!hashtag.isEmpty()) {
+                String text = (String) hashtag.get("text");
+                hashtagStr = hashtagStr + " " + text;
+            }
+        }
+        if (hashtagStr.length() > 1)
+            simpleTweet.put("hashtags", hashtagStr.trim());
+
+        String urlsList = "";
+        for (Map<String, Object> url : urls) {
+            if (!url.isEmpty()) {
+                String text = (String) url.get("expanded_url");
+                urlsList = urlsList + " " + text;
+            }
+        }
+        if (urlsList.length() > 1)
+            simpleTweet.put("urls", urlsList.trim());
+
+        String mentionsList = "";
+        for (Map<String, Object> user_mention : user_mentions) {
+            if (!user_mention.isEmpty()) {
+                String text = (String) user_mention.get("screen_name");
+                mentionsList = mentionsList + " " + text;
+            }
+        }
+        if (mentionsList.length() > 1)
+            simpleTweet.put("mentions", mentionsList.trim());
+
 
         Map<String, Object> data = new HashMap<>();
 
