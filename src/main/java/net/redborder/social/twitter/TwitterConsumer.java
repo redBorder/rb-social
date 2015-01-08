@@ -11,6 +11,7 @@ import com.twitter.hbc.core.event.Event;
 import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
+import net.redborder.social.util.Sensor;
 import net.redborder.taskassigner.TasksChangedListener;
 
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ public class TwitterConsumer {
         eventQueue = new HashMap<>();
     }
 
-    public void updateTasks(List<Map<String, Object>> list) {
+    public void updateTasks(List<Sensor> list) {
 
         List<String> newTask = new ArrayList<>();
         List<String> taskToRemove = new ArrayList<>();
@@ -48,8 +49,8 @@ public class TwitterConsumer {
         taskToRemove.addAll(runningTask);
 
 
-        for (Map<String, Object> sensor : list) {
-            TwitterSensor twitterSensor = new TwitterSensor(sensor);
+        for (Sensor sensor : list) {
+            TwitterSensor twitterSensor = (TwitterSensor) sensor;
             newTask.add(twitterSensor.getConsumerKey());
             twitterSensors.add(twitterSensor);
         }

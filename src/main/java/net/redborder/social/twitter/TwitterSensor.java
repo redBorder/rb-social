@@ -13,7 +13,6 @@ public class TwitterSensor extends Sensor {
     public TwitterSensor(String name) {
         super(name);
     }
-
     public TwitterSensor(Map<? extends String, ? extends Object> m) {
         super(m);
     }

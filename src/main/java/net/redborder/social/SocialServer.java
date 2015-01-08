@@ -1,16 +1,17 @@
 package net.redborder.social;
 
-import net.redborder.social.twitter.TwitterConsumer;
 import net.redborder.social.twitter.TwitterManager;
 import net.redborder.social.util.ConfigFile;
+import net.redborder.social.util.Sensor;
 import net.redborder.social.util.SensorType;
+import net.redborder.taskassigner.Task;
 import net.redborder.taskassigner.ZkTasksHandler;
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,8 +32,14 @@ public class SocialServer {
             config = ConfigFile.getInstance();
 
             tasksHandler = new ZkTasksHandler(config.getZkConnect(), "/rb-social");
-            List<Map<String, Object>> task = config.getSensorNames(SensorType.TWITTER);
-            tasksHandler.setTasks(task);
+            List<Sensor> sensors = config.getSensorNames(SensorType.TWITTER);
+            List<Task> tasks = new ArrayList<>();
+
+            for(Sensor s : sensors){
+                tasks.add(s);
+            }
+
+            tasksHandler.setTasks(tasks);
             twitterManager = new TwitterManager();
             tasksHandler.addListener(twitterManager);
 
@@ -59,7 +66,7 @@ public class SocialServer {
                     }
 
                     // Now reload the consumer and the tasks
-                    List<Map<String, Object>> task = config.getSensors(SensorType.TWITTER);
+                    List<Task> task = config.getSensors(SensorType.TWITTER);
                     tasksHandler.setTasks(task);
                     twitterManager.reload();
                     tasksHandler.reload();

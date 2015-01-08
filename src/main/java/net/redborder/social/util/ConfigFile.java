@@ -6,6 +6,8 @@
 package net.redborder.social.util;
 
 import net.redborder.social.twitter.TwitterSensor;
+import net.redborder.taskassigner.MappedTask;
+import net.redborder.taskassigner.Task;
 import org.ho.yaml.Yaml;
 
 import java.io.File;
@@ -27,7 +29,7 @@ public class ConfigFile {
     private final String CONFIG_FILE_PATH = "/opt/rb/etc/rb-social/config.yml";
     private Map<SensorType, List<Sensor>> _sensors;
     private Map<String, Object> _general;
-    private Map<SensorType, List<Map<String, Object>>> _sensorNames;
+    private Map<SensorType, List<Sensor>> _sensorNames;
 
     public static ConfigFile getInstance() {
         if (theInstance == null) {
@@ -70,14 +72,13 @@ public class ConfigFile {
         List<Map<String, Object>> sensors = (List<Map<String, Object>>) map.get("sensors");
 
         List<Sensor> twitterList = new ArrayList<>();
-        List<Map<String, Object>> sensorNames = new ArrayList<>();
+        List<Sensor> sensorNames = new ArrayList<>();
 
         if (sensors != null) {
             for (Map<String, Object> sensor : sensors) {
                 String sensorType = (String) sensor.get("type");
                 switch (sensorType) {
                     case "twitter":
-                        Map<String, Object> sensorName = new HashMap<>();
 
                         String consumer_key = (String) sensor.get("consumer_key");
                         String consumer_secret = (String) sensor.get("consumer_secret");
@@ -87,7 +88,7 @@ public class ConfigFile {
                         List<List<String>> locations_filters = (List<List<String>>) sensor.get("location_filter");
                         List<String> texts_filter = (List<String>) sensor.get("text_filter");
 
-                        sensorName.put("sensor_name", sensor_name + "_twitter");
+                        Sensor sensorName = new TwitterSensor(sensor_name + "_twitter");
 
                         TwitterSensor conf = new TwitterSensor(sensor_name);
                         conf.setConsumerKey(consumer_key);
@@ -121,13 +122,14 @@ public class ConfigFile {
         return sensors;
     }
 
-    public List<Map<String, Object>> getSensorNames(SensorType type){
+    public List<Sensor> getSensorNames(SensorType type){
         return _sensorNames.get(type);
     }
 
     public String getZkConnect() {
         return (String) getFromGeneral("zk_connect");
     }
+
 
     /**
      * Getter.

@@ -12,7 +12,13 @@
         <dependency>
             <groupId>net.redborder</groupId>
             <artifactId>task-assinger</artifactId>
-            <version>1.0</version>
+            <version>1.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.semantria</groupId>
+            <artifactId>SemantriaJavaSDK</artifactId>
+            <version>3.5.75</version>
         </dependency>
 
         <!-- Twitter Client -->

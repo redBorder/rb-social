@@ -1,7 +1,10 @@
 package net.redborder.social.twitter;
 
 import net.redborder.social.util.ConfigFile;
+import net.redborder.social.util.Sensor;
 import net.redborder.social.util.SensorType;
+import net.redborder.taskassigner.MappedTask;
+import net.redborder.taskassigner.Task;
 import net.redborder.taskassigner.TasksChangedListener;
 
 import java.io.FileNotFoundException;
@@ -27,14 +30,16 @@ public class TwitterManager implements TasksChangedListener {
     }
 
     @Override
-    public void updateTasks(List<Map<String, Object>> list) {
+    public void updateTasks(List<Task> list) {
 
-        List<Map<String, Object>> tasks = ConfigFile.getInstance().getSensors(SensorType.TWITTER);
-        List<Map<String, Object>> reallyTask = new ArrayList<>();
+        List<Sensor> tasks = ConfigFile.getInstance().getSensors(SensorType.TWITTER);
+        List<Sensor> reallyTask = new ArrayList<>();
 
-        for(Map<String, Object> sensorName : list){
-            for(Map<String, Object> task : tasks){
-                if(sensorName.get("sensor_name").equals(task.get("name")+"_twitter")){
+        for(Task sensorName : list){
+            for(Sensor task : tasks){
+                MappedTask sensorTask = (MappedTask) sensorName;
+                TwitterSensor twitterSensor = new TwitterSensor(sensorTask.asMap());
+                if(twitterSensor.getSensorName().equals(task.getSensorName() + "_twitter")){
                     reallyTask.add(task);
                 }
             }
@@ -50,8 +55,8 @@ public class TwitterManager implements TasksChangedListener {
         taskToRemove.addAll(runningTask);
 
 
-        for (Map<String, Object> sensor : reallyTask) {
-            TwitterSensor twitterSensor = new TwitterSensor(sensor);
+        for (Sensor sensor : reallyTask) {
+            TwitterSensor twitterSensor = (TwitterSensor) sensor;
             newTask.add(twitterSensor.getConsumerKey());
             twitterSensors.add(twitterSensor);
         }

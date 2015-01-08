@@ -1,10 +1,16 @@
 package net.redborder.social.twitter;
 
-import com.twitter.hbc.core.event.Event;
+import com.semantria.CallbackHandler;
+import com.semantria.Session;
+import com.semantria.interfaces.ICallbackHandler;
+import com.semantria.mapping.Document;
+import com.semantria.mapping.output.CollAnalyticData;
+import com.semantria.mapping.output.DocAnalyticData;
+import com.semantria.utils.RequestArgs;
+import com.semantria.utils.ResponseArgs;
+import net.redborder.social.util.SematriaSentiment;
 import net.redborder.social.util.kafka.KafkaProducer;
 import net.redborder.social.util.kafka.ZkKafkaBrokers;
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
@@ -22,6 +28,7 @@ public class TwitterProducer extends Thread {
     BlockingQueue<String> msgQueue;
     ObjectMapper mapper;
     String sensorName;
+    SematriaSentiment semantria;
 
 
     public TwitterProducer(BlockingQueue<String> msgQueue, String sensorName) {
@@ -30,6 +37,8 @@ public class TwitterProducer extends Thread {
         this.msgQueue = msgQueue;
         this.sensorName = sensorName;
         mapper = new ObjectMapper();
+        SematriaSentiment.init();
+        semantria = SematriaSentiment.getInstance();
     }
 
     @Override
@@ -46,8 +55,8 @@ public class TwitterProducer extends Thread {
                 try {
                     data = complexToSimple(msg);
 
-                    if (data != null)
-                        producer.send("rb_social", data.get("tweet"));
+                    if (semantria != null)
+                        semantria.addEvent((Map<String, Object>) data.get("tweet"));
 
                     List<Map<String, Object>> hashTags = (List<Map<String, Object>>) data.get("hashtags");
 
@@ -71,6 +80,14 @@ public class TwitterProducer extends Thread {
                         List<String> mentionStr = mentionsParser(mentions);
                         for (String mention : mentionStr)
                             producer.send("rb_hashtag", mention);
+                    }
+
+                    if(semantria != null) {
+                        List<String> msgs = semantria.getEvents();
+                        for (String msgToSend : msgs)
+                            producer.send("rb_social", msgToSend);
+                    } else {
+                        producer.send("rb_social", data.get("tweet"));
                     }
 
                 } catch (IOException e) {
@@ -129,11 +146,11 @@ public class TwitterProducer extends Thread {
             String image_url = (String) user.get("profile_image_url_https");
             String from = (String) user.get("location");
 
-            if (id != null && id.length()>0)
+            if (id != null && id.length() > 0)
                 simpleTweet.put("user_id", id);
-            if (name != null && name.length()>0)
+            if (name != null && name.length() > 0)
                 simpleTweet.put("user_name", name);
-            if (username != null && username.length()>0)
+            if (username != null && username.length() > 0)
                 simpleTweet.put("user_screen_name", username);
             if (followers != null)
                 simpleTweet.put("followers", followers);
@@ -141,11 +158,11 @@ public class TwitterProducer extends Thread {
                 simpleTweet.put("friends", friends);
             if (tweets != null)
                 simpleTweet.put("user_msgs", tweets);
-            if (language != null && language.length()>0)
+            if (language != null && language.length() > 0)
                 simpleTweet.put("user_language", language);
-            if (image_url != null && image_url.length()>0)
+            if (image_url != null && image_url.length() > 0)
                 simpleTweet.put("user_profile_img_https", image_url);
-            if (from != null && from.length()>0)
+            if (from != null && from.length() > 0)
                 simpleTweet.put("user_from", from);
         }
 
@@ -194,7 +211,10 @@ public class TwitterProducer extends Thread {
         data.put("hashtags", hashtags);
         data.put("urls", urls);
         data.put("user_mentions", user_mentions);
-        data.put("tweet", mapper.writeValueAsString(simpleTweet));
+        if (semantria != null)
+            data.put("tweet", simpleTweet);
+        else
+            data.put("tweet", mapper.writeValueAsString(simpleTweet));
 
         return data;
     }
