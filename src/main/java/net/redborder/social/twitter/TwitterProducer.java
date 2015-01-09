@@ -146,20 +146,20 @@ public class TwitterProducer extends Thread {
             String image_url = (String) user.get("profile_image_url_https");
             String from = (String) user.get("location");
 
-            if(followers>10000000){
+            if (followers > 10000000) {
                 simpleTweet.put("influence", "Extremly High");
-            }else if(followers>1000000){
+            } else if (followers > 1000000) {
                 simpleTweet.put("influence", "Very High");
-            }else if(followers>500000){
+            } else if (followers > 500000) {
                 simpleTweet.put("influence", "High");
-            }else if(followers>50000){
+            } else if (followers > 50000) {
                 simpleTweet.put("influence", "Medium");
-            }else if(followers>500){
+            } else if (followers > 500) {
                 simpleTweet.put("influence", "Low");
-            }else{
-                if(tweets>1500){
+            } else {
+                if (tweets > 1500) {
                     simpleTweet.put("influence", "Low");
-                }else{
+                } else {
                     simpleTweet.put("influence", "Very Low");
                 }
             }
@@ -248,7 +248,8 @@ public class TwitterProducer extends Thread {
         for (Map<String, Object> user_mention : user_mentions) {
             if (!user_mention.isEmpty()) {
                 String text = (String) user_mention.get("screen_name");
-                mentionsList = mentionsList + " " + text;
+                if (!mentionsList.contains(text))
+                    mentionsList = mentionsList + " " + text;
             }
         }
         if (mentionsList.length() > 1)
