@@ -165,11 +165,11 @@ public class TwitterProducer extends Thread {
             }
 
             if (id != null && id.length() > 0)
-                simpleTweet.put("user_id", id);
+                simpleTweet.put("client_id", id);
             if (name != null && name.length() > 0)
                 simpleTweet.put("user_name", name);
             if (username != null && username.length() > 0)
-                simpleTweet.put("client_id", username);
+                simpleTweet.put("user_screen_name", username);
             if (followers != null)
                 simpleTweet.put("followers", followers);
             if (friends != null)
