@@ -66,8 +66,14 @@ public class SocialServer {
                     }
 
                     // Now reload the consumer and the tasks
-                    List<Task> task = config.getSensors(SensorType.TWITTER);
-                    tasksHandler.setTasks(task);
+                    List<Sensor> sensors = config.getSensorNames(SensorType.TWITTER);
+                    List<Task> tasks = new ArrayList<>();
+
+                    for(Sensor s : sensors){
+                        tasks.add(s);
+                    }
+
+                    tasksHandler.setTasks(tasks);
                     twitterManager.reload();
                     tasksHandler.reload();
                     System.out.println("Reload finished!");
