@@ -146,12 +146,30 @@ public class TwitterProducer extends Thread {
             String image_url = (String) user.get("profile_image_url_https");
             String from = (String) user.get("location");
 
+            if(followers>10000000){
+                simpleTweet.put("influence", "Extremly High");
+            }else if(followers>1000000){
+                simpleTweet.put("influence", "Very High");
+            }else if(followers>500000){
+                simpleTweet.put("influence", "High");
+            }else if(followers>50000){
+                simpleTweet.put("influence", "Medium");
+            }else if(followers>500){
+                simpleTweet.put("influence", "Low");
+            }else{
+                if(tweets>1500){
+                    simpleTweet.put("influence", "Low");
+                }else{
+                    simpleTweet.put("influence", "Very Low");
+                }
+            }
+
             if (id != null && id.length() > 0)
                 simpleTweet.put("user_id", id);
             if (name != null && name.length() > 0)
                 simpleTweet.put("user_name", name);
             if (username != null && username.length() > 0)
-                simpleTweet.put("user_screen_name", username);
+                simpleTweet.put("client_id", username);
             if (followers != null)
                 simpleTweet.put("followers", followers);
             if (friends != null)
@@ -171,10 +189,10 @@ public class TwitterProducer extends Thread {
 
         if (geo != null) {
             List<Integer> coord = (ArrayList<Integer>) geo.get("coordinates");
-            simpleTweet.put("client_latlong", coord.get(0) + ", " + coord.get(1));
+            simpleTweet.put("client_latlong", coord.get(0) + "," + coord.get(1));
         } else if (coordinates != null) {
             List<Integer> coord = (ArrayList<Integer>) coordinates.get("coordinates");
-            simpleTweet.put("client_latlong", coord.get(1) + ", " + coord.get(0));
+            simpleTweet.put("client_latlong", coord.get(1) + "," + coord.get(0));
         }
 
         Map<String, Object> place = (Map<String, Object>) complexTweet.get("place");
@@ -189,13 +207,13 @@ public class TwitterProducer extends Thread {
                 simpleTweet.put("msg_send_from", tweet_loc);
         }
 
-        Integer retweet_count = (Integer) complexTweet.get("retweet_count");
+      /*  Integer retweet_count = (Integer) complexTweet.get("retweet_count");
         Integer favorite_count = (Integer) complexTweet.get("favorite_count");
 
         if (retweet_count != null)
             simpleTweet.put("msg_share_count", retweet_count);
         if (favorite_count != null)
-            simpleTweet.put("msg_favorite_count", favorite_count);
+            simpleTweet.put("msg_favorite_count", favorite_count); */
 
         Map<String, Object> entities = (Map<String, Object>) complexTweet.get("entities");
 
