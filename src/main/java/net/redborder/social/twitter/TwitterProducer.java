@@ -147,20 +147,20 @@ public class TwitterProducer extends Thread {
             String from = (String) user.get("location");
 
             if (followers > 10000000) {
-                simpleTweet.put("influence", "Extremly High");
+                simpleTweet.put("influence", "extremly high");
             } else if (followers > 1000000) {
-                simpleTweet.put("influence", "Very High");
+                simpleTweet.put("influence", "very high");
             } else if (followers > 500000) {
-                simpleTweet.put("influence", "High");
+                simpleTweet.put("influence", "high");
             } else if (followers > 10000) {
-                simpleTweet.put("influence", "Medium");
+                simpleTweet.put("influence", "medium");
             } else if (followers > 500) {
-                simpleTweet.put("influence", "Low");
+                simpleTweet.put("influence", "low");
             } else {
                 if (tweets > 1500) {
-                    simpleTweet.put("influence", "Low");
+                    simpleTweet.put("influence", "low");
                 } else {
-                    simpleTweet.put("influence", "Very Low");
+                    simpleTweet.put("influence", "very low");
                 }
             }
 
