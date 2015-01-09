@@ -152,7 +152,7 @@ public class TwitterProducer extends Thread {
                 simpleTweet.put("influence", "Very High");
             } else if (followers > 500000) {
                 simpleTweet.put("influence", "High");
-            } else if (followers > 50000) {
+            } else if (followers > 10000) {
                 simpleTweet.put("influence", "Medium");
             } else if (followers > 500) {
                 simpleTweet.put("influence", "Low");
