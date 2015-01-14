@@ -8,6 +8,7 @@ import com.semantria.mapping.output.CollAnalyticData;
 import com.semantria.mapping.output.DocAnalyticData;
 import com.semantria.utils.RequestArgs;
 import com.semantria.utils.ResponseArgs;
+import com.twitter.hbc.core.endpoint.Location;
 import net.redborder.social.util.SematriaSentiment;
 import net.redborder.social.util.kafka.KafkaProducer;
 import net.redborder.social.util.kafka.ZkKafkaBrokers;
@@ -29,9 +30,10 @@ public class TwitterProducer extends Thread {
     ObjectMapper mapper;
     String sensorName;
     SematriaSentiment semantria;
+    List<List<String>> locations;
 
 
-    public TwitterProducer(BlockingQueue<String> msgQueue, String sensorName) {
+    public TwitterProducer(BlockingQueue<String> msgQueue, String sensorName, List<List<String>> locations) {
         producer = new KafkaProducer(new ZkKafkaBrokers());
         producer.prepare();
         this.msgQueue = msgQueue;
@@ -39,6 +41,7 @@ public class TwitterProducer extends Thread {
         mapper = new ObjectMapper();
         SematriaSentiment.init();
         semantria = SematriaSentiment.getInstance();
+        this.locations = locations;
     }
 
     @Override
@@ -55,45 +58,48 @@ public class TwitterProducer extends Thread {
                 try {
                     data = complexToSimple(msg);
 
-                    if (semantria != null)
-                        semantria.addEvent((Map<String, Object>) data.get("tweet"));
+                    if(data!=null) {
+                        if (semantria != null)
+                            semantria.addEvent((Map<String, Object>) data.get("tweet"));
 
-                    List<Map<String, Object>> hashTags = (List<Map<String, Object>>) data.get("hashtags");
+                        List<Map<String, Object>> hashTags = (List<Map<String, Object>>) data.get("hashtags");
 
-                    if (!hashTags.isEmpty()) {
-                        List<String> hashtagStr = hashTagsParser(hashTags);
-                        for (String hash : hashtagStr)
-                            producer.send("rb_hashtag", hash);
-                    }
+                        if (!hashTags.isEmpty()) {
+                            List<String> hashtagStr = hashTagsParser(hashTags);
+                            for (String hash : hashtagStr)
+                                producer.send("rb_hashtag", hash);
+                        }
 
-                    List<Map<String, Object>> url = (List<Map<String, Object>>) data.get("urls");
+                        List<Map<String, Object>> url = (List<Map<String, Object>>) data.get("urls");
 
-                    if (!url.isEmpty()) {
-                        List<String> urlStr = urlsParser(url);
-                        for (String urlS : urlStr)
-                            producer.send("rb_hashtag", urlS);
-                    }
+                        if (!url.isEmpty()) {
+                            List<String> urlStr = urlsParser(url);
+                            for (String urlS : urlStr)
+                                producer.send("rb_hashtag", urlS);
+                        }
 
-                    List<Map<String, Object>> mentions = (List<Map<String, Object>>) data.get("user_mentions");
+                        List<Map<String, Object>> mentions = (List<Map<String, Object>>) data.get("user_mentions");
 
-                    if (!mentions.isEmpty()) {
-                        List<String> mentionStr = mentionsParser(mentions);
-                        for (String mention : mentionStr)
-                            producer.send("rb_hashtag", mention);
-                    }
+                        if (!mentions.isEmpty()) {
+                            List<String> mentionStr = mentionsParser(mentions);
+                            for (String mention : mentionStr)
+                                producer.send("rb_hashtag", mention);
+                        }
 
-                    if (semantria != null) {
-                        List<String> msgs = semantria.getEvents();
-                        for (String msgToSend : msgs)
-                            producer.send("rb_social", msgToSend);
+                        if (semantria != null) {
+                            List<String> msgs = semantria.getEvents();
+                            for (String msgToSend : msgs)
+                                producer.send("rb_social", msgToSend);
+                        } else {
+                            producer.send("rb_social", data.get("tweet"));
+                        }
                     } else {
-                        producer.send("rb_social", data.get("tweet"));
+                        System.out.println("Out of location square.");
                     }
 
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
 
             }
             try {
@@ -187,12 +193,42 @@ public class TwitterProducer extends Thread {
         Map<String, Object> geo = (Map<String, Object>) complexTweet.get("geo");
         Map<String, Object> coordinates = (Map<String, Object>) complexTweet.get("coordinates");
 
+
+        boolean intoSquare = false;
+
+        Double lat = 0.00;
+        Double lon = 0.00;
+
         if (geo != null) {
-            List<Integer> coord = (ArrayList<Integer>) geo.get("coordinates");
-            simpleTweet.put("client_latlong", coord.get(0) + "," + coord.get(1));
+            List<Double> coord = (ArrayList<Double>) geo.get("coordinates");
+            lat = coord.get(0);
+            lon = coord.get(1);
         } else if (coordinates != null) {
-            List<Integer> coord = (ArrayList<Integer>) coordinates.get("coordinates");
-            simpleTweet.put("client_latlong", coord.get(1) + "," + coord.get(0));
+            List<Double> coord = (ArrayList<Double>) coordinates.get("coordinates");
+            lat = coord.get(1);
+            lon = coord.get(0);
+        } else {
+            intoSquare = true;
+        }
+
+        if (!intoSquare) {
+            for (List<String> location : locations) {
+                String[] longLatSouthWest = location.get(0).split(",");
+                String[] longLatNorthEast = location.get(1).split(",");
+
+                //System.out.println("LAT: " + lat);
+                //System.out.println(" > " + Double.valueOf(longLatSouthWest[1].trim()) + " < " + Double.valueOf(longLatNorthEast[1].trim()));
+                //System.out.println("LONG: " + lon);
+                //System.out.println(" > " +  Double.valueOf(longLatSouthWest[0].trim()) + " < " +  Double.valueOf(longLatNorthEast[0].trim()));
+
+                if (lat != 0 && lon != 0) {
+                    if (lat > Double.valueOf(longLatSouthWest[1].trim()) && lat < Double.valueOf(longLatNorthEast[1].trim()) && lon > Double.valueOf(longLatSouthWest[0].trim()) && lon <  Double.valueOf(longLatNorthEast[0].trim())) {
+                        simpleTweet.put("client_latlong", lat + "," + lon);
+                        intoSquare = true;
+                        break;
+                    }
+                }
+            }
         }
 
         Map<String, Object> place = (Map<String, Object>) complexTweet.get("place");
@@ -266,7 +302,10 @@ public class TwitterProducer extends Thread {
         else
             data.put("tweet", mapper.writeValueAsString(simpleTweet));
 
-        return data;
+        if (intoSquare)
+            return data;
+        else
+            return null;
     }
 
     public List<String> hashTagsParser(List<Map<String, Object>> hashtags) throws IOException {

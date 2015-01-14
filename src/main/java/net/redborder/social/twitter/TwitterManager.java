@@ -68,7 +68,7 @@ public class TwitterManager implements TasksChangedListener {
 
             if (newTask.contains(twitterSensor.getConsumerKey())) {
                 TwitterProducer producer = new TwitterProducer(msgQueue.get(twitterSensor.getSensorName()),
-                        twitterSensor.getSensorName());
+                        twitterSensor.getSensorName(), twitterSensor.getLocationFilters());
                 producers.put(twitterSensor.getSensorName(), producer);
                 producer.start();
             }
