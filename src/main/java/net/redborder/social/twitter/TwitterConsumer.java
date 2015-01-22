@@ -28,7 +28,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class TwitterConsumer {
 
-    final int MAX_RECONNECTION_HOSEBIRD = 10;
+    final int MAX_RECONNECTION_HOSEBIRD = Integer.MAX_VALUE;
 
     private static Map<String, LinkedBlockingQueue<String>> msgQueue;
     private static Map<String, LinkedBlockingQueue<Event>> eventQueue;
