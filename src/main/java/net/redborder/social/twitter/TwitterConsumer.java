@@ -1,6 +1,8 @@
 package net.redborder.social.twitter;
 
+import com.twitter.hbc.BasicReconnectionManager;
 import com.twitter.hbc.ClientBuilder;
+import com.twitter.hbc.ReconnectionManager;
 import com.twitter.hbc.core.Client;
 import com.twitter.hbc.core.Constants;
 import com.twitter.hbc.core.Hosts;
@@ -25,6 +27,8 @@ import java.util.concurrent.LinkedBlockingQueue;
  * Created by andresgomez on 29/12/14.
  */
 public class TwitterConsumer {
+
+    final int MAX_RECONNECTION_HOSEBIRD = 10;
 
     private static Map<String, LinkedBlockingQueue<String>> msgQueue;
     private static Map<String, LinkedBlockingQueue<Event>> eventQueue;
@@ -113,11 +117,15 @@ public class TwitterConsumer {
                 sensor.getTokenKey(),
                 sensor.getTokenSecret());
 
+        BasicReconnectionManager reconnectionManager = new BasicReconnectionManager(MAX_RECONNECTION_HOSEBIRD);
+
+
         ClientBuilder builder = new ClientBuilder()
                 .name(sensor.getSensorName())
                 .hosts(hosebirdHosts)
                 .endpoint(endpoint)
                 .authentication(hosebirdAuth)
+                .reconnectionManager(reconnectionManager)
                 .processor(new StringDelimitedProcessor(msgQueue.get(sensor.getSensorName())))
                 .eventMessageQueue(eventQueue.get(sensor.getSensorName()));
 
