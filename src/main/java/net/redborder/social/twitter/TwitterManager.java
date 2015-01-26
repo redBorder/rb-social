@@ -24,10 +24,13 @@ public class TwitterManager implements TasksChangedListener {
 
     private Map<String, LinkedBlockingQueue<String>> msgQueue;
 
+    List<String> runningTask;
+
     public TwitterManager() {
         msgQueue = new HashMap<>();
         twitterConsumer = new TwitterConsumer(msgQueue);
         producers = new HashMap<>();
+        runningTask = new ArrayList<>();
     }
 
     @Override
@@ -50,31 +53,32 @@ public class TwitterManager implements TasksChangedListener {
 
         List<String> newTask = new ArrayList<>();
         List<String> taskToRemove = new ArrayList<>();
-        List<String> runningTask = new ArrayList<>(msgQueue.keySet());
         List<TwitterSensor> twitterSensors = new ArrayList<>();
 
         taskToRemove.addAll(runningTask);
 
-
         for (Sensor sensor : reallyTask) {
             TwitterSensor twitterSensor = (TwitterSensor) sensor;
-            newTask.add(twitterSensor.asMap().toString());
+            newTask.add(twitterSensor.getUniqueId());
             twitterSensors.add(twitterSensor);
         }
 
         taskToRemove.removeAll(newTask);
         newTask.removeAll(runningTask);
 
+        runningTask.addAll(newTask);
+        runningTask.removeAll(taskToRemove);
+
         for (TwitterSensor twitterSensor : twitterSensors) {
 
-            if (newTask.contains(twitterSensor.asMap().toString())) {
-                TwitterProducer producer = new TwitterProducer(msgQueue.get(twitterSensor.asMap().toString()),
+            if (newTask.contains(twitterSensor.getUniqueId())) {
+                TwitterProducer producer = new TwitterProducer(msgQueue.get(twitterSensor.getUniqueId()),
                         twitterSensor.getSensorName(), twitterSensor.getLocationFilters());
                 producers.put(twitterSensor.getSensorName(), producer);
                 producer.start();
             }
 
-            if (taskToRemove.contains(twitterSensor.asMap().toString())) {
+            if (taskToRemove.contains(twitterSensor.getUniqueId())) {
                 TwitterProducer producer = producers.get(twitterSensor.getSensorName());
                 producer.end();
                 producers.remove(twitterSensor.getSensorName());

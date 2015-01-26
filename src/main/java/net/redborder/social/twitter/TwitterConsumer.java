@@ -55,7 +55,7 @@ public class TwitterConsumer {
 
         for (Sensor sensor : list) {
             TwitterSensor twitterSensor = (TwitterSensor) sensor;
-            newTask.add(twitterSensor.asMap().toString());
+            newTask.add(twitterSensor.getUniqueId());
             twitterSensors.add(twitterSensor);
         }
 
@@ -66,8 +66,8 @@ public class TwitterConsumer {
         System.out.println("TASK TO ADD: " + newTask);
 
         for (TwitterSensor twitterSensor : twitterSensors) {
-            if (newTask.contains(twitterSensor.asMap().toString())) {
-                runningTask.add(twitterSensor.asMap().toString());
+            if (newTask.contains(twitterSensor.getUniqueId())) {
+                runningTask.add(twitterSensor.getUniqueId());
                 openClient(twitterSensor);
             }
         }
@@ -91,8 +91,8 @@ public class TwitterConsumer {
         Hosts hosebirdHosts = new HttpHosts(Constants.STREAM_HOST);
         StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
 
-        msgQueue.put(sensor.asMap().toString(), new LinkedBlockingQueue<String>(100000));
-        eventQueue.put(sensor.getSensorName(), new LinkedBlockingQueue<Event>(10000));
+        msgQueue.put(sensor.getUniqueId(), new LinkedBlockingQueue<String>(100000));
+        eventQueue.put(sensor.getUniqueId(), new LinkedBlockingQueue<Event>(10000));
 
         if (!sensor.getTextFilters().isEmpty())
             endpoint.trackTerms(sensor.getTextFilters());
@@ -126,13 +126,13 @@ public class TwitterConsumer {
                 .endpoint(endpoint)
                 .authentication(hosebirdAuth)
                 .reconnectionManager(reconnectionManager)
-                .processor(new StringDelimitedProcessor(msgQueue.get(sensor.asMap().toString())))
-                .eventMessageQueue(eventQueue.get(sensor.getSensorName()));
+                .processor(new StringDelimitedProcessor(msgQueue.get(sensor.getUniqueId())))
+                .eventMessageQueue(eventQueue.get(sensor.getUniqueId()));
 
         Client hbc = builder.build();
 
         hbc.connect();
-        runningHbc.put(sensor.asMap().toString(), hbc);
+        runningHbc.put(sensor.getUniqueId(), hbc);
     }
 
     public void end(){

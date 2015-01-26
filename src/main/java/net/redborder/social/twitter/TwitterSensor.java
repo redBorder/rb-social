@@ -65,4 +65,8 @@ public class TwitterSensor extends Sensor {
     public void setTokenSecret(String tokenSecret) {
         setData("token_secret", tokenSecret);
     }
+
+    public String getUniqueId(){
+        return getSensorName() + getConsumerKey() + getLocationFilters().toString() + getTextFilters().toString();
+    }
 }
