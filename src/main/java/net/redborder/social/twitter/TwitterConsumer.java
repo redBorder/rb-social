@@ -55,7 +55,7 @@ public class TwitterConsumer {
 
         for (Sensor sensor : list) {
             TwitterSensor twitterSensor = (TwitterSensor) sensor;
-            newTask.add(twitterSensor.getConsumerKey());
+            newTask.add(twitterSensor.asMap().toString());
             twitterSensors.add(twitterSensor);
         }
 
@@ -66,8 +66,8 @@ public class TwitterConsumer {
         System.out.println("TASK TO ADD: " + newTask);
 
         for (TwitterSensor twitterSensor : twitterSensors) {
-            if (newTask.contains(twitterSensor.getConsumerKey())) {
-                runningTask.add(twitterSensor.getConsumerKey());
+            if (newTask.contains(twitterSensor.asMap().toString())) {
+                runningTask.add(twitterSensor.asMap().toString());
                 openClient(twitterSensor);
             }
         }
@@ -82,7 +82,7 @@ public class TwitterConsumer {
 
     public void closeClient(String task){
         Client client = runningHbc.get(task);
-        msgQueue.remove(client.getName());
+        msgQueue.remove(task);
         runningHbc.remove(task);
         client.stop();
     }
@@ -91,7 +91,7 @@ public class TwitterConsumer {
         Hosts hosebirdHosts = new HttpHosts(Constants.STREAM_HOST);
         StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
 
-        msgQueue.put(sensor.getSensorName(), new LinkedBlockingQueue<String>(100000));
+        msgQueue.put(sensor.asMap().toString(), new LinkedBlockingQueue<String>(100000));
         eventQueue.put(sensor.getSensorName(), new LinkedBlockingQueue<Event>(10000));
 
         if (!sensor.getTextFilters().isEmpty())
@@ -126,13 +126,13 @@ public class TwitterConsumer {
                 .endpoint(endpoint)
                 .authentication(hosebirdAuth)
                 .reconnectionManager(reconnectionManager)
-                .processor(new StringDelimitedProcessor(msgQueue.get(sensor.getSensorName())))
+                .processor(new StringDelimitedProcessor(msgQueue.get(sensor.asMap().toString())))
                 .eventMessageQueue(eventQueue.get(sensor.getSensorName()));
 
         Client hbc = builder.build();
 
         hbc.connect();
-        runningHbc.put(sensor.getConsumerKey(), hbc);
+        runningHbc.put(sensor.asMap().toString(), hbc);
     }
 
     public void end(){

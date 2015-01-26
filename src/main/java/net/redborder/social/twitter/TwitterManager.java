@@ -22,9 +22,10 @@ public class TwitterManager implements TasksChangedListener {
     private TwitterConsumer twitterConsumer;
     private Map<String, TwitterProducer> producers;
 
-    private Map<String, LinkedBlockingQueue<String>> msgQueue = new HashMap<>();
+    private Map<String, LinkedBlockingQueue<String>> msgQueue;
 
     public TwitterManager() {
+        msgQueue = new HashMap<>();
         twitterConsumer = new TwitterConsumer(msgQueue);
         producers = new HashMap<>();
     }
@@ -57,7 +58,7 @@ public class TwitterManager implements TasksChangedListener {
 
         for (Sensor sensor : reallyTask) {
             TwitterSensor twitterSensor = (TwitterSensor) sensor;
-            newTask.add(twitterSensor.getConsumerKey());
+            newTask.add(twitterSensor.asMap().toString());
             twitterSensors.add(twitterSensor);
         }
 
@@ -66,14 +67,14 @@ public class TwitterManager implements TasksChangedListener {
 
         for (TwitterSensor twitterSensor : twitterSensors) {
 
-            if (newTask.contains(twitterSensor.getConsumerKey())) {
-                TwitterProducer producer = new TwitterProducer(msgQueue.get(twitterSensor.getSensorName()),
+            if (newTask.contains(twitterSensor.asMap().toString())) {
+                TwitterProducer producer = new TwitterProducer(msgQueue.get(twitterSensor.asMap().toString()),
                         twitterSensor.getSensorName(), twitterSensor.getLocationFilters());
                 producers.put(twitterSensor.getSensorName(), producer);
                 producer.start();
             }
 
-            if (taskToRemove.contains(twitterSensor.getConsumerKey())) {
+            if (taskToRemove.contains(twitterSensor.asMap().toString())) {
                 TwitterProducer producer = producers.get(twitterSensor.getSensorName());
                 producer.end();
                 producers.remove(twitterSensor.getSensorName());

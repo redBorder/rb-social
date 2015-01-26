@@ -94,7 +94,7 @@ public class TwitterProducer extends Thread {
                             producer.send("rb_social", data.get("tweet"));
                         }
                     } else {
-                        System.out.println("Out of location square.");
+                        System.out.println("Tweet -> Out of location square.");
                     }
 
                 } catch (IOException e) {
