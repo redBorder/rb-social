@@ -5,6 +5,7 @@
  */
 package net.redborder.social.util;
 
+import net.redborder.social.instagram.InstagramSensor;
 import net.redborder.social.twitter.TwitterSensor;
 import net.redborder.taskassigner.MappedTask;
 import net.redborder.taskassigner.Task;
@@ -72,7 +73,10 @@ public class ConfigFile {
         List<Map<String, Object>> sensors = (List<Map<String, Object>>) map.get("sensors");
 
         List<Sensor> twitterList = new ArrayList<>();
-        List<Sensor> sensorNames = new ArrayList<>();
+        List<Sensor> instagramList = new ArrayList<>();
+
+        List<Sensor> twitterSensorNames = new ArrayList<>();
+        List<Sensor> instagramSensorNames = new ArrayList<>();
 
         if (sensors != null) {
             for (Map<String, Object> sensor : sensors) {
@@ -84,35 +88,63 @@ public class ConfigFile {
                         String consumer_secret = (String) sensor.get("consumer_secret");
                         String token_key = (String) sensor.get("token_key");
                         String token_secret = (String) sensor.get("token_secret");
-                        String sensor_name = (String) sensor.get("sensor_name");
-                        List<List<String>> locations_filters = (List<List<String>>) sensor.get("location_filter");
+                        String sensor_name_twitter = (String) sensor.get("sensor_name");
+                        List<List<String>> locations_filters_twitter = (List<List<String>>) sensor.get("location_filter");
                         List<String> texts_filter = (List<String>) sensor.get("text_filter");
 
-                        Sensor sensorName = new TwitterSensor(sensor_name + "_twitter");
+                        Sensor sensorNameTwitter = new TwitterSensor(sensor_name_twitter + "_twitter");
 
-                        TwitterSensor conf = new TwitterSensor(sensor_name);
-                        conf.setConsumerKey(consumer_key);
-                        conf.setConsumerSecret(consumer_secret);
-                        conf.setTokenKey(token_key);
-                        conf.setTokenSecret(token_secret);
+                        TwitterSensor conf_twitter = new TwitterSensor(sensor_name_twitter);
+                        conf_twitter.setConsumerKey(consumer_key);
+                        conf_twitter.setConsumerSecret(consumer_secret);
+                        conf_twitter.setTokenKey(token_key);
+                        conf_twitter.setTokenSecret(token_secret);
 
-                        if (locations_filters != null) {
-                            conf.setLocation(locations_filters);
+                        if (locations_filters_twitter != null) {
+                            conf_twitter.setLocation(locations_filters_twitter);
                         }
 
                         if (texts_filter != null) {
-                            conf.setTextFilter(texts_filter);
+                            conf_twitter.setTextFilter(texts_filter);
                         }
 
-                        sensorNames.add(sensorName);
-                        twitterList.add(conf);
+                        twitterSensorNames.add(sensorNameTwitter);
+                        twitterList.add(conf_twitter);
+
+                        break;
+
+                    case "instagram":
+
+                        String client_id = (String) sensor.get("client_id");
+                        String client_secret = (String) sensor.get("client_secret");
+                        String callback_url = (String) sensor.get("callback_url");
+                        String sensor_name_instagram = (String) sensor.get("sensor_name");
+                        List<List<String>> locations_filters_instagram = (List<List<String>>) sensor.get("location_filter");
+
+                        Sensor sensorNameInstagram = new InstagramSensor(sensor_name_instagram + "_instagram");
+
+                        InstagramSensor conf_instagram = new InstagramSensor(sensor_name_instagram);
+
+                        instagramSensorNames.add(sensorNameInstagram);
+
+                        conf_instagram.setClientId(client_id);
+                        conf_instagram.setClientSecret(client_secret);
+                        conf_instagram.setCallbackUrl(callback_url);
+                        conf_instagram.setLocationFilter(locations_filters_instagram);
+
+                        instagramList.add(conf_instagram);
+
                         break;
                 }
             }
         }
 
-        _sensorNames.put(SensorType.TWITTER, sensorNames);
+        _sensorNames.put(SensorType.TWITTER, twitterSensorNames);
         _sensors.put(SensorType.TWITTER, twitterList);
+
+
+        _sensorNames.put(SensorType.INSTAGRAM, instagramSensorNames);
+        _sensors.put(SensorType.INSTAGRAM, instagramList);
             /* General Config */
         _general = (Map<String, Object>) map.get("general");
     }
@@ -122,7 +154,7 @@ public class ConfigFile {
         return sensors;
     }
 
-    public List<Sensor> getSensorNames(SensorType type){
+    public List<Sensor> getSensorNames(SensorType type) {
         return _sensorNames.get(type);
     }
 
