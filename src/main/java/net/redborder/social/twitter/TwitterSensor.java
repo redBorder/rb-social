@@ -2,6 +2,7 @@ package net.redborder.social.twitter;
 
 import net.redborder.social.util.Sensor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -27,11 +28,11 @@ public class TwitterSensor extends Sensor {
     }
 
     public List<List<String>> getLocationFilters(){
-        return getData("location_filters");
+        return getData("location_filters") == null ? new ArrayList<List<String>>() : (List<List<String>>) getData("location_filters");
     }
 
     public List<String> getTextFilters(){
-        return getData("text_filters");
+        return getData("text_filters") == null ? new ArrayList<String>() : (List<String>) getData("text_filters");
     }
 
     public String getConsumerKey() {
