@@ -4,6 +4,7 @@ import net.redborder.social.util.Sensor;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Created by andresgomez on 23/12/14.
@@ -67,6 +68,10 @@ public class TwitterSensor extends Sensor {
     }
 
     public String getUniqueId(){
-        return getSensorName() + getConsumerKey() + getLocationFilters().toString() + getTextFilters().toString();
+        String sensorName = getSensorName() == null ? "sensor_" + UUID.randomUUID().toString() : getSensorName();
+        String locationFilters = getLocationFilters() == null ? "locationNone" :  getLocationFilters().toString();
+        String textFilters = getTextFilters() == null ? "textFiltersNone" : getTextFilters().toString();
+
+        return sensorName + getConsumerKey() + locationFilters + textFilters;
     }
 }
