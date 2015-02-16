@@ -27,7 +27,7 @@ public class ConfigFile {
 
     private static ConfigFile theInstance = null;
     private static final Object initMonitor = new Object();
-    private final String CONFIG_FILE_PATH = "/opt/rb/etc/rb-social/config.yml";
+    private final String CONFIG_FILE_PATH = "/Users/fernandodominguez/IdeaProjects/rb-social/config.yml";
     private Map<SensorType, List<Sensor>> _sensors;
     private Map<String, Object> _general;
     private Map<SensorType, List<Sensor>> _sensorNames;
@@ -129,7 +129,6 @@ public class ConfigFile {
 
                         conf_instagram.setClientId(client_id);
                         conf_instagram.setClientSecret(client_secret);
-                        conf_instagram.setCallbackUrl(callback_url);
                         conf_instagram.setLocationFilter(locations_filters_instagram);
 
                         instagramList.add(conf_instagram);

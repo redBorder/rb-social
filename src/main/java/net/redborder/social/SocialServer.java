@@ -1,5 +1,6 @@
 package net.redborder.social;
 
+import net.redborder.social.instagram.InstagramManager;
 import net.redborder.social.twitter.TwitterManager;
 import net.redborder.social.util.ConfigFile;
 import net.redborder.social.util.Sensor;
@@ -20,34 +21,43 @@ import java.util.logging.Logger;
  */
 public class SocialServer {
     static ZkTasksHandler tasksHandler;
-    static ConfigFile config;
     static TwitterManager twitterManager;
+    static InstagramManager instagramManager;
     static Object running;
 
     public static void main(String[] args) {
         try {
             ConfigFile.init();
             running = new Object();
-
-            config = ConfigFile.getInstance();
-
-            tasksHandler = new ZkTasksHandler(config.getZkConnect(), "/rb-social");
-            List<Sensor> sensors = config.getSensorNames(SensorType.TWITTER);
             List<Task> tasks = new ArrayList<>();
+
+            tasksHandler = new ZkTasksHandler(ConfigFile.getInstance().getZkConnect(), "/rb-social");
+            List<Sensor> sensors = ConfigFile.getInstance().getSensorNames(SensorType.TWITTER);
 
             for(Sensor s : sensors){
                 tasks.add(s);
             }
 
+            final List<Sensor> instagramSensors = ConfigFile.getInstance().getSensorNames(SensorType.INSTAGRAM);
+
+            for(Sensor s : instagramSensors){
+                tasks.add(s);
+            }
+
             tasksHandler.setTasks(tasks);
+
             twitterManager = new TwitterManager();
+            instagramManager = new InstagramManager();
+
             tasksHandler.addListener(twitterManager);
+            tasksHandler.addListener(instagramManager);
 
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 public void run() {
                     System.out.println("Exiting...");
                     tasksHandler.end();
                     twitterManager.end();
+                    instagramManager.end();
                     synchronized (running) {
                         running.notifyAll();
                     }
@@ -66,7 +76,7 @@ public class SocialServer {
                     }
 
                     // Now reload the consumer and the tasks
-                    List<Sensor> sensors = config.getSensorNames(SensorType.TWITTER);
+                    List<Sensor> sensors = ConfigFile.getInstance().getSensorNames(SensorType.TWITTER);
                     List<Task> tasks = new ArrayList<>();
 
                     for(Sensor s : sensors){
@@ -75,6 +85,7 @@ public class SocialServer {
 
                     tasksHandler.setTasks(tasks);
                     twitterManager.reload();
+                    instagramManager.reload();
                     tasksHandler.reload();
                     System.out.println("Reload finished!");
                 }

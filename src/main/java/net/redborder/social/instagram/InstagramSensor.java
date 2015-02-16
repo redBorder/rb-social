@@ -18,15 +18,11 @@ public class InstagramSensor extends Sensor{
     }
 
     public String getClientId(){
-       return getData("client_id");
+        return getData("client_id");
     }
 
     public String getClientSecret(){
         return getData("client_secret");
-    }
-
-    public String getCallbackUrl(){
-        return getData("callback_url");
     }
 
     public List<List<String>> getLocationFilter(){
@@ -35,10 +31,6 @@ public class InstagramSensor extends Sensor{
 
     public void setLocationFilter(List<List<String>> locationFilter){
         setData("location_filter", locationFilter);
-    }
-
-    public void setCallbackUrl(String callbackUrl){
-        setData("callback_url", callbackUrl);
     }
 
     public void setClientSecret(String clientSecret){
@@ -50,7 +42,7 @@ public class InstagramSensor extends Sensor{
     }
 
     public String getUniqueId(){
-        return getSensorName() + getClientId() + getCallbackUrl() + getClientSecret() + getLocationFilter().toString();
+        return getSensorName() + getClientId() + getClientSecret() + getLocationFilter().toString();
     }
 
 
