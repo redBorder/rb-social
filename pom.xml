@@ -11,8 +11,8 @@
     <dependencies>
         <dependency>
             <groupId>net.redborder</groupId>
-            <artifactId>task-assinger</artifactId>
-            <version>1.2</version>
+            <artifactId>rb-task-assinger</artifactId>
+            <version>1.4</version>
         </dependency>
 
         <dependency>
