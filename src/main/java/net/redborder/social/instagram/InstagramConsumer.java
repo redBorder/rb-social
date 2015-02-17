@@ -37,6 +37,7 @@ public class InstagramConsumer extends Thread{
 
     private List<List<String>> locations;
     private final static int activityPeriod = 60;
+    private final static double RAD = 0.000008998719243599958;
 
     public InstagramConsumer( InstagramSensor sensor, Map<String, LinkedBlockingQueue<String>> msgQueue){
 
@@ -77,36 +78,56 @@ public class InstagramConsumer extends Thread{
             c.setTime(max);
             c.add(Calendar.SECOND, -activityPeriod);
             Date min = c.getTime();
+            MediaFeed feedGeographies = null;
 
             for (List<String> location : this.locations ) {
 
-                for (String loc : location){
+                if (location.size() == 2){      // Square method
 
-                    String[] parts = loc.split(",");
-                    MediaFeed feedGeographies = client.searchMedia( Float.parseFloat(parts[0].trim()),
-                            Float.parseFloat(parts[1].trim()), max, min, Integer.parseInt(parts[2].trim()) );
-                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS");
-                    System.out.println("MIN TIME: " + sdf.format(min));
-                    System.out.println("MAX TIME: " + sdf.format(max));
-                    List<MediaFeedData> locationsData = feedGeographies.getData();
-                    for (MediaFeedData mediaData : locationsData) {
+                    String[] p1Coordinates = location.get(0).split(",");
+                    String[] p2Coordinates = location.get(1).split(",");
 
-                        Map<String, Object> data = complexToSimple(mediaData);
-                        String json = mapper.writeValueAsString(data);
-                        LinkedBlockingQueue<String> queue = msgQueue.get(sensor.getUniqueId());
-                        try {
-                            queue.put(json);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        msgQueue.put( sensor.getUniqueId(), queue );
+                    float mean_lng = ( Float.parseFloat(p1Coordinates[0].trim()) + Float.parseFloat(p2Coordinates[0].trim()) ) / 2;
+                    float mean_lat = ( Float.parseFloat(p1Coordinates[1].trim()) + Float.parseFloat(p2Coordinates[1].trim()) ) / 2;
+
+                    double r = Math.max( Math.abs( Float.parseFloat(p2Coordinates[0].trim()) - mean_lng ) ,
+                            Math.abs( Float.parseFloat(p2Coordinates[1].trim()) - mean_lat ) );
+
+                    r = r / RAD;
+
+                    feedGeographies = client.searchMedia( mean_lat,
+                            mean_lng, max, min, (int) Math.round(r) );
+
+                }else if (location.size() == 1){        // Radious method
+
+                    String[] parts = location.get(0).split(",");
+
+                    feedGeographies = client.searchMedia( Float.parseFloat(parts[1].trim()),
+                            Float.parseFloat(parts[0].trim()), max, min, Integer.parseInt(parts[2].trim()) );
+
+                }
+
+                List<MediaFeedData> locationsData = feedGeographies.getData();
+                for (MediaFeedData mediaData : locationsData) {
+
+                    Map<String, Object> data = complexToSimple(mediaData);
+                    String json = mapper.writeValueAsString(data);
+                    LinkedBlockingQueue<String> queue = msgQueue.get(sensor.getUniqueId());
+                    try {
+                        queue.put(json);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
+                    msgQueue.put( sensor.getUniqueId(), queue );
+
                 }
             }
 
         }catch (InstagramException e){
             e.printStackTrace();
         }catch (IOException e){
+            e.printStackTrace();
+        }catch (Exception e){
             e.printStackTrace();
         }
 
@@ -127,7 +148,7 @@ public class InstagramConsumer extends Thread{
         Map<String, Object> map = new HashMap<>();
         map.put("client_latlong", data.getLocation().getLatitude() + "," + data.getLocation().getLongitude());
         map.put("user_screen_name", data.getUser().getFullName());
-        map.put("influence", "unknown");       //TODO obtener
+        map.put("influence", "unknown");
         map.put("type", "instagram");
         if (data.getCaption() != null) {
             String msg = data.getCaption().getText();
