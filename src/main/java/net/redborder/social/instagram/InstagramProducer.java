@@ -38,7 +38,6 @@ public class InstagramProducer extends Thread {
             try {
                 while (!msgQueue.isEmpty()){
                     String msg = msgQueue.take();
-                    System.out.println("Mensaje recibido de " + sensorName  + ": " + msg);
                     producer.send("rb_social", msg);
                 }
                 Thread.sleep(sleepPeriod);
