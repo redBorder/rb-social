@@ -297,10 +297,13 @@ public class TwitterProducer extends Thread {
         data.put("hashtags", hashtags);
         data.put("urls", urls);
         data.put("user_mentions", user_mentions);
+
         if (semantria != null)
             data.put("tweet", simpleTweet);
-        else
+        else {
+            simpleTweet.put("sentiment", "unknown");
             data.put("tweet", mapper.writeValueAsString(simpleTweet));
+        }
 
         if (intoSquare)
             return data;
