@@ -147,7 +147,7 @@ public class InstagramConsumer extends Thread{
 
         Map<String, Object> map = new HashMap<>();
         map.put("client_latlong", data.getLocation().getLatitude() + "," + data.getLocation().getLongitude());
-        map.put("user_screen_name", data.getUser().getFullName());
+        map.put("user_name", data.getUser().getFullName());
         map.put("influence", "unknown");
         map.put("type", "instagram");
         if (data.getCaption() != null) {
@@ -166,7 +166,7 @@ public class InstagramConsumer extends Thread{
             }
         }
         map.put("timestamp", data.getCreatedTime());
-        map.put("user_name", data.getUser().getUserName());
+        map.put("user_screen_name", data.getUser().getUserName());
         //map.put("followers", 0);
         //map.put("friends", 0);
         map.put("sensor_name", sensor.getSensorName());
