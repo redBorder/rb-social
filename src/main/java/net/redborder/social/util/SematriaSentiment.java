@@ -3,8 +3,7 @@ package net.redborder.social.util;
 import com.semantria.Session;
 import com.semantria.interfaces.ICallbackHandler;
 import com.semantria.mapping.Document;
-import com.semantria.mapping.output.CollAnalyticData;
-import com.semantria.mapping.output.DocAnalyticData;
+import com.semantria.mapping.output.*;
 import com.semantria.utils.RequestArgs;
 import com.semantria.utils.ResponseArgs;
 import org.codehaus.jackson.JsonGenerationException;
@@ -120,6 +119,29 @@ public class SematriaSentiment {
                 event.put("sentiment", "neutral");
             }
             event.put("sentiment_value", Float.toString(score));
+
+            List<Float> relevances = new ArrayList<>();
+            List<String> categories = new ArrayList<>();
+
+
+            List<DocTopic> docCategories = doc.getTopics();
+
+            if (docCategories != null) {
+                for (DocTopic category : docCategories) {
+                    relevances.add(category.getStrengthScore());
+                    categories.add(category.getTitle());
+                }
+
+                if (categories.size() > 0)
+                    event.put("category", categories.get(Collections.max(relevances).intValue()));
+                else
+                    event.put("category", "unknown");
+            } else {
+                event.put("category", "unknown");
+            }
+
+            event.put("language", doc.getLanguage());
+
             eventToSend.add(mapper.writeValueAsString(event));
         }
         return eventToSend;
