@@ -264,10 +264,13 @@ public class TwitterProducer extends Thread {
         for (Map<String, Object> hashtag : hashtags) {
             if (!hashtag.isEmpty()) {
                 String text = (String) hashtag.get("text");
-                hashtagStr = hashtagStr + " " + text;
+                hashtagStr = hashtagStr + " #" + text;
             }
         }
-        if (hashtagStr.length() > 1)
+
+        hashtagStr = hashtagStr + " ";
+
+        if (hashtagStr.length() > 2)
             simpleTweet.put("hashtags", hashtagStr.trim());
 
         String urlsList = "";
@@ -277,7 +280,10 @@ public class TwitterProducer extends Thread {
                 urlsList = urlsList + " " + text;
             }
         }
-        if (urlsList.length() > 1)
+
+        urlsList = urlsList + " ";
+
+        if (urlsList.length() > 2)
             simpleTweet.put("urls", urlsList.trim());
 
         String mentionsList = "";
@@ -285,10 +291,13 @@ public class TwitterProducer extends Thread {
             if (!user_mention.isEmpty()) {
                 String text = (String) user_mention.get("screen_name");
                 if (!mentionsList.contains(text))
-                    mentionsList = mentionsList + " " + text;
+                    mentionsList = mentionsList + " @" + text;
             }
         }
-        if (mentionsList.length() > 1)
+
+        mentionsList = mentionsList + " ";
+
+        if (mentionsList.length() > 2)
             simpleTweet.put("mentions", mentionsList.trim());
 
 
@@ -302,6 +311,8 @@ public class TwitterProducer extends Thread {
             data.put("tweet", simpleTweet);
         else {
             simpleTweet.put("sentiment", "unknown");
+            simpleTweet.put("category", "unknown");
+            simpleTweet.put("language", "unknown");
             data.put("tweet", mapper.writeValueAsString(simpleTweet));
         }
 

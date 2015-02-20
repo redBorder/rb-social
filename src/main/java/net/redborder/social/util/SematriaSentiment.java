@@ -140,7 +140,13 @@ public class SematriaSentiment {
                 event.put("category", "unknown");
             }
 
-            event.put("language", doc.getLanguage());
+            String language = doc.getLanguage();
+
+            if (language != null)
+                event.put("language", language);
+            else
+                event.put("language", "unknown");
+
 
             eventToSend.add(mapper.writeValueAsString(event));
         }

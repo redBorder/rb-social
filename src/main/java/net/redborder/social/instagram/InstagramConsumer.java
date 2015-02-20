@@ -1,5 +1,6 @@
 package net.redborder.social.instagram;
 
+import net.redborder.social.util.SematriaSentiment;
 import net.redborder.social.util.Sensor;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.JsonEncoding;
@@ -25,12 +26,15 @@ import java.util.regex.Pattern;
 /**
  * Created by fernandodominguez on 29/1/15.
  */
-public class InstagramConsumer extends Thread{
+public class InstagramConsumer extends Thread {
 
     private List<String> runningTask;
 
     private Instagram client;
     private InstagramSensor sensor;
+
+    private SematriaSentiment semantria;
+
 
     private ObjectMapper mapper;
     private Map<String, LinkedBlockingQueue<String>> msgQueue;
@@ -39,15 +43,17 @@ public class InstagramConsumer extends Thread{
     private final static int activityPeriod = 60;
     private final static double RAD = 0.000008998719243599958;
 
-    public InstagramConsumer( InstagramSensor sensor, Map<String, LinkedBlockingQueue<String>> msgQueue){
+    public InstagramConsumer(InstagramSensor sensor, Map<String, LinkedBlockingQueue<String>> msgQueue) {
 
         mapper = new ObjectMapper();
         runningTask = new ArrayList<>();
         this.msgQueue = msgQueue;
         this.sensor = sensor;
+        semantria = SematriaSentiment.getInstance();
+
     }
 
-    public void updateTasks(){
+    public void updateTasks() {
 
         List<String> newTask = new ArrayList<>();
         List<String> taskToRemove = new ArrayList<>();
@@ -70,7 +76,7 @@ public class InstagramConsumer extends Thread{
     }
 
     @Override
-    public void run(){
+    public void run() {
 
         try {
             Date max = new Date();
@@ -80,30 +86,30 @@ public class InstagramConsumer extends Thread{
             Date min = c.getTime();
             MediaFeed feedGeographies = null;
 
-            for (List<String> location : this.locations ) {
+            for (List<String> location : this.locations) {
 
-                if (location.size() == 2){      // Square method
+                if (location.size() == 2) {      // Square method
 
                     String[] p1Coordinates = location.get(0).split(",");
                     String[] p2Coordinates = location.get(1).split(",");
 
-                    float mean_lng = ( Float.parseFloat(p1Coordinates[0].trim()) + Float.parseFloat(p2Coordinates[0].trim()) ) / 2;
-                    float mean_lat = ( Float.parseFloat(p1Coordinates[1].trim()) + Float.parseFloat(p2Coordinates[1].trim()) ) / 2;
+                    float mean_lng = (Float.parseFloat(p1Coordinates[0].trim()) + Float.parseFloat(p2Coordinates[0].trim())) / 2;
+                    float mean_lat = (Float.parseFloat(p1Coordinates[1].trim()) + Float.parseFloat(p2Coordinates[1].trim())) / 2;
 
-                    double r = Math.max( Math.abs( Float.parseFloat(p2Coordinates[0].trim()) - mean_lng ) ,
-                            Math.abs( Float.parseFloat(p2Coordinates[1].trim()) - mean_lat ) );
+                    double r = Math.max(Math.abs(Float.parseFloat(p2Coordinates[0].trim()) - mean_lng),
+                            Math.abs(Float.parseFloat(p2Coordinates[1].trim()) - mean_lat));
 
                     r = r / RAD;
 
-                    feedGeographies = client.searchMedia( mean_lat,
-                            mean_lng, max, min, (int) Math.round(r) );
+                    feedGeographies = client.searchMedia(mean_lat,
+                            mean_lng, max, min, (int) Math.round(r));
 
-                }else if (location.size() == 1){        // Radious method
+                } else if (location.size() == 1) {        // Radious method
 
                     String[] parts = location.get(0).split(",");
 
-                    feedGeographies = client.searchMedia( Float.parseFloat(parts[1].trim()),
-                            Float.parseFloat(parts[0].trim()), max, min, Integer.parseInt(parts[2].trim()) );
+                    feedGeographies = client.searchMedia(Float.parseFloat(parts[1].trim()),
+                            Float.parseFloat(parts[0].trim()), max, min, Integer.parseInt(parts[2].trim()));
 
                 }
 
@@ -111,36 +117,44 @@ public class InstagramConsumer extends Thread{
                 for (MediaFeedData mediaData : locationsData) {
 
                     Map<String, Object> data = complexToSimple(mediaData);
-                    String json = mapper.writeValueAsString(data);
-                    LinkedBlockingQueue<String> queue = msgQueue.get(sensor.getUniqueId());
-                    try {
-                        queue.put(json);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    msgQueue.put( sensor.getUniqueId(), queue );
 
+                    if (semantria != null) {
+                        semantria.addEvent(data);
+                    }else {
+                        data.put("sentiment", "unknown");
+                        data.put("category", "unknown");
+                        data.put("language", "unknown");
+
+                        String json = mapper.writeValueAsString(data);
+                        LinkedBlockingQueue<String> queue = msgQueue.get(sensor.getUniqueId());
+                        try {
+                            queue.put(json);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        msgQueue.put(sensor.getUniqueId(), queue);
+                    }
                 }
             }
 
-        }catch (InstagramException e){
+        } catch (InstagramException e) {
             e.printStackTrace();
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
-    private void openClient(InstagramSensor sensor){
+    private void openClient(InstagramSensor sensor) {
         this.client = new Instagram(sensor.getClientId());
         this.locations = sensor.getLocationFilter();
         msgQueue.put(sensor.getUniqueId(), new LinkedBlockingQueue<String>(100000));
 
         /* Ejecuta run() cada 60 segundos */
         ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
-        exec.scheduleAtFixedRate(this , 0 , activityPeriod, TimeUnit.SECONDS);
+        exec.scheduleAtFixedRate(this, 0, activityPeriod, TimeUnit.SECONDS);
     }
 
     private Map<String, Object> complexToSimple(MediaFeedData data) throws IOException {
@@ -161,7 +175,7 @@ public class InstagramConsumer extends Thread{
                     map.put("hashtags", hashtags);
                 if (mentions != null)
                     map.put("mentions", mentions);
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -183,7 +197,7 @@ public class InstagramConsumer extends Thread{
         return map;
     }
 
-    private String parseHashtags(String msg){
+    private String parseHashtags(String msg) {
 
         List<String> found = new ArrayList<>();
         int howMany = StringUtils.countMatches(msg, "#");
@@ -202,12 +216,12 @@ public class InstagramConsumer extends Thread{
                 found.add(tag);
             }
             return listToString(found);
-        }else{
+        } else {
             return null;
         }
     }
 
-    private String parseMentions(String msg){
+    private String parseMentions(String msg) {
 
         List<String> found = new ArrayList<>();
         int howMany = StringUtils.countMatches(msg, "@");
@@ -226,14 +240,14 @@ public class InstagramConsumer extends Thread{
                 found.add(tag);
             }
             return listToString(found);
-        }else{
+        } else {
             return null;
         }
     }
 
-    private String listToString(List<String> list){
+    private String listToString(List<String> list) {
         String converted = "";
-        for (String s : list){
+        for (String s : list) {
             converted += s;
             converted += " ";
         }
