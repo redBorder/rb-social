@@ -13,6 +13,7 @@ import javax.print.Doc;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by andresgomez on 8/1/15.
@@ -33,7 +34,7 @@ public class SematriaSentiment {
         String secret = configFile.getFromGeneral("semantria_secret");
 
         mapper = new ObjectMapper();
-        events = new HashMap<>();
+        events = new ConcurrentHashMap<>();
 
         if (key != null && secret != null && key.length() > 0 && secret.length() > 0) {
             session = Session.createSession(key, secret, true);
@@ -110,45 +111,47 @@ public class SematriaSentiment {
         for (DocAnalyticData doc : docs) {
             Map<String, Object> event = events.get(doc.getId());
             events.remove(doc.getId());
-            Float score = doc.getSentimentScore();
-            if (score > 0) {
-                event.put("sentiment", "positive");
-            } else if (score < 0) {
-                event.put("sentiment", "negative");
-            } else {
-                event.put("sentiment", "neutral");
-            }
-            event.put("sentiment_value", Float.toString(score));
+            if(event != null) {
+                Float score = doc.getSentimentScore();
+                if (score > 0) {
+                    event.put("sentiment", "positive");
+                } else if (score < 0) {
+                    event.put("sentiment", "negative");
+                } else {
+                    event.put("sentiment", "neutral");
+                }
+                event.put("sentiment_value", Float.toString(score));
 
-            List<Float> relevances = new ArrayList<>();
-            List<String> categories = new ArrayList<>();
+                List<Float> relevances = new ArrayList<>();
+                List<String> categories = new ArrayList<>();
 
 
-            List<DocTopic> docCategories = doc.getTopics();
+                List<DocTopic> docCategories = doc.getTopics();
 
-            if (docCategories != null) {
-                for (DocTopic category : docCategories) {
-                    relevances.add(category.getStrengthScore());
-                    categories.add(category.getTitle());
+                if (docCategories != null) {
+                    for (DocTopic category : docCategories) {
+                        relevances.add(category.getStrengthScore());
+                        categories.add(category.getTitle());
+                    }
+
+                    if (categories.size() > 0)
+                        event.put("category", categories.get(Collections.max(relevances).intValue()));
+                    else
+                        event.put("category", "unknown");
+                } else {
+                    event.put("category", "unknown");
                 }
 
-                if (categories.size() > 0)
-                    event.put("category", categories.get(Collections.max(relevances).intValue()));
+                String language = doc.getLanguage();
+
+                if (language != null)
+                    event.put("language", language);
                 else
-                    event.put("category", "unknown");
-            } else {
-                event.put("category", "unknown");
+                    event.put("language", "unknown");
+
+
+                eventToSend.add(mapper.writeValueAsString(event));
             }
-
-            String language = doc.getLanguage();
-
-            if (language != null)
-                event.put("language", language);
-            else
-                event.put("language", "unknown");
-
-
-            eventToSend.add(mapper.writeValueAsString(event));
         }
         return eventToSend;
     }
