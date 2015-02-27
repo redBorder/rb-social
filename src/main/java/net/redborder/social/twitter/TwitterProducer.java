@@ -328,7 +328,7 @@ public class TwitterProducer extends Thread {
             if (!hashtag.isEmpty()) {
                 Map<String, Object> hashCount = new HashMap<>();
                 String text = (String) hashtag.get("text");
-                hashCount.put("value", text);
+                hashCount.put("value", "#" +text);
                 hashCount.put("type", "hashtag");
                 hashCount.put("sensor_name", sensorName);
                 hashCount.put("timestamp", System.currentTimeMillis() / 1000);
@@ -360,7 +360,7 @@ public class TwitterProducer extends Thread {
             if (!user_mention.isEmpty()) {
                 Map<String, Object> user_mentionCount = new HashMap<>();
                 String text = (String) user_mention.get("screen_name");
-                user_mentionCount.put("value", text);
+                user_mentionCount.put("value", "@" +text);
                 user_mentionCount.put("type", "user_mention");
                 user_mentionCount.put("sensor_name", sensorName);
                 user_mentionCount.put("timestamp", System.currentTimeMillis() / 1000);
