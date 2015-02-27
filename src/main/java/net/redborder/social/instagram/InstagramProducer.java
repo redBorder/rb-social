@@ -29,7 +29,7 @@ public class InstagramProducer extends Thread {
         this.sensorName = sensorName;
         mapper = new ObjectMapper();
         SematriaSentiment.init();
-        semantria = SematriaSentiment.getInstance();
+        semantria = null;
         this.locations = locations;
     }
 

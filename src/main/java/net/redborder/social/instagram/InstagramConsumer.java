@@ -49,7 +49,7 @@ public class InstagramConsumer extends Thread {
         runningTask = new ArrayList<>();
         this.msgQueue = msgQueue;
         this.sensor = sensor;
-        semantria = SematriaSentiment.getInstance();
+        semantria = null;
 
     }
 
