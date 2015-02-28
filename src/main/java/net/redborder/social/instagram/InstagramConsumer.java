@@ -54,6 +54,7 @@ public class InstagramConsumer extends Thread {
         this.sensor = sensor;
         semantria = null;
         kafkaProducer = new KafkaProducer(new ZkKafkaBrokers());
+        kafkaProducer.prepare();
 
     }
 
