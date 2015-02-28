@@ -2,6 +2,8 @@ package net.redborder.social.instagram;
 
 import net.redborder.social.util.SematriaSentiment;
 import net.redborder.social.util.Sensor;
+import net.redborder.social.util.kafka.KafkaProducer;
+import net.redborder.social.util.kafka.ZkKafkaBrokers;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.JsonEncoding;
 import org.codehaus.jackson.JsonFactory;
@@ -42,6 +44,7 @@ public class InstagramConsumer extends Thread {
     private List<List<String>> locations;
     private final static int activityPeriod = 60;
     private final static double RAD = 0.000008998719243599958;
+    private KafkaProducer kafkaProducer;
 
     public InstagramConsumer(InstagramSensor sensor, Map<String, LinkedBlockingQueue<String>> msgQueue) {
 
@@ -50,6 +53,7 @@ public class InstagramConsumer extends Thread {
         this.msgQueue = msgQueue;
         this.sensor = sensor;
         semantria = null;
+        kafkaProducer = new KafkaProducer(new ZkKafkaBrokers());
 
     }
 
@@ -103,7 +107,7 @@ public class InstagramConsumer extends Thread {
 
                     r = r / RAD;
 
-                    System.out.println("COORDINATES [lat: " +mean_lat + " long:" + mean_lng + " r: " + r + "]");
+                    System.out.println("COORDINATES [lat: " + mean_lat + " long:" + mean_lng + " r: " + r + "]");
                     feedGeographies = client.searchMedia(mean_lat,
                             mean_lng, max, min, (int) Math.round(r));
 
@@ -124,18 +128,16 @@ public class InstagramConsumer extends Thread {
 
                     if (semantria != null) {
                         semantria.addEvent(data);
-                    }else {
+                    } else {
                         data.put("sentiment", "unknown");
                         data.put("category", "unknown");
                         data.put("language", "unknown");
 
                         String json = mapper.writeValueAsString(data);
-                        try {
-                            System.out.println("Added msg to queueId: "+ sensor.getUniqueId() +"\n" + json );
-                            msgQueue.get(sensor.getUniqueId()).put(json);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                        System.out.println("Added msg to queueId: " + sensor.getUniqueId() + "\n" + json);
+                        kafkaProducer.send("rb_social", json);
+                        //msgQueue.get(sensor.getUniqueId()).put(json);
+
                     }
                 }
             }
