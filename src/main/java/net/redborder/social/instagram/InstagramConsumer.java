@@ -116,6 +116,7 @@ public class InstagramConsumer extends Thread {
                 }
 
                 List<MediaFeedData> locationsData = feedGeographies.getData();
+                System.out.println("Return instagram query, result size: " + locationsData.size());
                 for (MediaFeedData mediaData : locationsData) {
 
                     Map<String, Object> data = complexToSimple(mediaData);

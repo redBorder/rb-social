@@ -38,6 +38,7 @@ public class InstagramProducer extends Thread {
         while (true) {
             try {
                 if (semantria == null) {
+                    System.out.println("Sending " + msgQueue.size() + " instagram msgs.");
                     while (!msgQueue.isEmpty()) {
                         String msg = msgQueue.take();
                         producer.send("rb_social", msg);
