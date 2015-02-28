@@ -59,11 +59,11 @@ public class TwitterConsumer {
             twitterSensors.add(twitterSensor);
         }
 
-        System.out.println("RUNNING TASK: " + runningTask);
+        System.out.println("[Twitter] RUNNING TASK: " + runningTask);
         taskToRemove.removeAll(newTask);
-        System.out.println("TASK TO REMOVE: " + taskToRemove);
+        System.out.println("[Twitter] TASK TO REMOVE: " + taskToRemove);
         newTask.removeAll(runningTask);
-        System.out.println("TASK TO ADD: " + newTask);
+        System.out.println("[Twitter] TASK TO ADD: " + newTask);
 
         for (TwitterSensor twitterSensor : twitterSensors) {
             if (newTask.contains(twitterSensor.getUniqueId())) {
@@ -77,7 +77,7 @@ public class TwitterConsumer {
             closeClient(task);
         }
 
-        System.out.println("RUNNING TASK: " + runningTask);
+        System.out.println("[Twitter] RUNNING TASK: " + runningTask);
     }
 
     public void closeClient(String task){

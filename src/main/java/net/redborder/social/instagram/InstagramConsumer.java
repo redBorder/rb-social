@@ -62,16 +62,18 @@ public class InstagramConsumer extends Thread {
 
         newTask.add(sensor.getUniqueId());
 
-        System.out.println("RUNNING TASK: " + runningTask);
+        System.out.println("[Instagram] RUNNING TASK: " + runningTask);
         taskToRemove.removeAll(newTask);
-        System.out.println("TASK TO REMOVE: " + taskToRemove);
+        System.out.println("[Instagram] TASK TO REMOVE: " + taskToRemove);
         newTask.removeAll(runningTask);
-        System.out.println("TASK TO ADD: " + newTask);
+        System.out.println("[Instagram] TASK TO ADD: " + newTask);
 
         if (newTask.contains(sensor.getUniqueId())) {
             runningTask.add(sensor.getUniqueId());
             openClient(sensor);
         }
+
+        System.out.println("[Instagram] RUNNING TASK: " + runningTask);
 
     }
 
