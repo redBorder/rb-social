@@ -135,7 +135,7 @@ public class SematriaSentiment {
                     }
 
                     if (categories.size() > 0)
-                        event.put("category", categories.get(Collections.max(relevances).intValue()));
+                        event.put("category", categories.get(relevances.indexOf(Collections.max(relevances))));
                     else
                         event.put("category", "unknown");
                 } else {
