@@ -103,6 +103,7 @@ public class InstagramConsumer extends Thread {
 
                     r = r / RAD;
 
+                    System.out.println("COORDINATES [lat: " +mean_lat + " long:" + mean_lng + " r: " + r + "]");
                     feedGeographies = client.searchMedia(mean_lat,
                             mean_lng, max, min, (int) Math.round(r));
 
