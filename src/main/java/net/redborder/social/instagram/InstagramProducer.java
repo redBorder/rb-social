@@ -20,7 +20,7 @@ public class InstagramProducer extends Thread {
     private String sensorName;
     private SematriaSentiment semantria;
     private List<List<String>> locations;
-    private int sleepPeriod = 60000;
+    private long sleepPeriod = 60000;
 
     public InstagramProducer(BlockingQueue<String> msgQueue, String sensorName, List<List<String>> locations) {
         producer = new KafkaProducer(new ZkKafkaBrokers());
