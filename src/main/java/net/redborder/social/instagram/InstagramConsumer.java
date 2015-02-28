@@ -131,6 +131,7 @@ public class InstagramConsumer extends Thread {
                         String json = mapper.writeValueAsString(data);
                         LinkedBlockingQueue<String> queue = msgQueue.get(sensor.getUniqueId());
                         try {
+                            System.out.println("Added msg to queueId: "+ sensor.getUniqueId() +"\n" + json );
                             queue.put(json);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
