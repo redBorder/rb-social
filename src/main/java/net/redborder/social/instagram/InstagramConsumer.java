@@ -37,6 +37,8 @@ public class InstagramConsumer extends Thread {
 
     private SematriaSentiment semantria;
 
+    ScheduledExecutorService exec;
+
 
     private ObjectMapper mapper;
     private Map<String, LinkedBlockingQueue<String>> msgQueue;
@@ -76,6 +78,11 @@ public class InstagramConsumer extends Thread {
         if (newTask.contains(sensor.getUniqueId())) {
             runningTask.add(sensor.getUniqueId());
             openClient(sensor);
+        }
+
+        if(taskToRemove.contains(sensor.getUniqueId())){
+            runningTask.remove(sensor.getUniqueId());
+            closeClient();
         }
 
         System.out.println("[Instagram] RUNNING TASK: " + runningTask);
@@ -159,8 +166,15 @@ public class InstagramConsumer extends Thread {
         msgQueue.put(sensor.getUniqueId(), new LinkedBlockingQueue<String>(100000));
 
         /* Ejecuta run() cada 60 segundos */
-        ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
+        exec = Executors.newSingleThreadScheduledExecutor();
+
         exec.scheduleAtFixedRate(this, 0, activityPeriod, TimeUnit.SECONDS);
+    }
+
+
+    private void closeClient() {
+        if (!exec.isShutdown())
+            exec.shutdown();
     }
 
     private Map<String, Object> complexToSimple(MediaFeedData data) throws IOException {
