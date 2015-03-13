@@ -31,7 +31,7 @@ public class SocialServer {
             running = new Object();
             List<Task> tasks = new ArrayList<>();
 
-            tasksHandler = new ZkTasksHandler(ConfigFile.getInstance().getZkConnect(), "/rb-social");
+            tasksHandler = new ZkTasksHandler(ConfigFile.getInstance().getZkConnect(), "/rb-social-local");
             List<Sensor> sensors = ConfigFile.getInstance().getSensorNames(SensorType.TWITTER);
 
             for(Sensor s : sensors){
