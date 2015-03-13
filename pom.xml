@@ -6,7 +6,12 @@
 
     <groupId>net.redborder</groupId>
     <artifactId>rb-social</artifactId>
-    <version>2.0</version>
+    <version>2.1.0-SNAPSHOT</version>
+
+    <scm>
+        <developerConnection>scm:git:git@gitlab.redborder.lan:agomez/rb-social.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
 
     <dependencies>
         <dependency>
@@ -52,11 +57,6 @@
 
     <build>
         <plugins>
-            <!--
-             Bind the maven-assembly-plugin to the package phase
-             this will create a jar file without the storm dependencies
-             suitable for deployment to a cluster.
-            -->
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
@@ -67,7 +67,7 @@
                     <appendAssemblyId>false</appendAssemblyId>
                     <archive>
                         <manifest>
-                            <mainClass>net.redborder.social.SocialServer</mainClass>
+                            <mainClass>net.redborder.malware.sequencefile.SequenceFileService</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -80,6 +80,12 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.1</version>
             </plugin>
 
             <plugin>
@@ -110,21 +116,6 @@
                     <target>7</target>
                 </configuration>
             </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.17</version>
-                <configuration>
-                    <skipTests>false</skipTests>
-                </configuration>
-            </plugin>
         </plugins>
-
-        <testResources>
-            <testResource>
-                <directory>src/test/resources</directory>
-            </testResource>
-        </testResources>
     </build>
 </project>
