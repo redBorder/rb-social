@@ -260,7 +260,7 @@ public class TwitterProducer extends Thread {
 
         simpleTweet.put("sensor_name", sensorName);
 
-        String hashtagStr = "";
+        String hashtagStr = " ";
         for (Map<String, Object> hashtag : hashtags) {
             if (!hashtag.isEmpty()) {
                 String text = (String) hashtag.get("text");
@@ -273,7 +273,7 @@ public class TwitterProducer extends Thread {
         if (hashtagStr.length() > 2)
             simpleTweet.put("hashtags", hashtagStr.trim());
 
-        String urlsList = "";
+        String urlsList = " ";
         for (Map<String, Object> url : urls) {
             if (!url.isEmpty()) {
                 String text = (String) url.get("expanded_url");
@@ -286,7 +286,7 @@ public class TwitterProducer extends Thread {
         if (urlsList.length() > 2)
             simpleTweet.put("urls", urlsList.trim());
 
-        String mentionsList = "";
+        String mentionsList = " ";
         for (Map<String, Object> user_mention : user_mentions) {
             if (!user_mention.isEmpty()) {
                 String text = (String) user_mention.get("screen_name");
