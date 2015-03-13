@@ -1,13 +1,10 @@
 package net.redborder.social.instagram;
 
 import net.redborder.social.util.SematriaSentiment;
-import net.redborder.social.util.Sensor;
 import net.redborder.social.util.kafka.KafkaProducer;
 import net.redborder.social.util.kafka.ZkKafkaBrokers;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.JsonEncoding;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonGenerator;
+import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.netty.util.internal.StringUtil;
 import org.jinstagram.Instagram;
@@ -18,27 +15,20 @@ import org.jinstagram.exceptions.InstagramException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.concurrent.*;
+
 
 /**
  * Created by fernandodominguez on 29/1/15.
  */
 public class InstagramConsumer extends Thread {
 
-    private List<String> runningTask;
-
     private Instagram client;
     private InstagramSensor sensor;
 
     private SematriaSentiment semantria;
 
-    ScheduledExecutorService exec;
-
+    ScheduledFuture thread;
 
     private ObjectMapper mapper;
     private Map<String, LinkedBlockingQueue<String>> msgQueue;
@@ -48,44 +38,17 @@ public class InstagramConsumer extends Thread {
     private final static double RAD = 0.000008998719243599958;
     private KafkaProducer kafkaProducer;
 
+    private Logger l;
+
     public InstagramConsumer(InstagramSensor sensor, Map<String, LinkedBlockingQueue<String>> msgQueue) {
 
         mapper = new ObjectMapper();
-        runningTask = new ArrayList<>();
         this.msgQueue = msgQueue;
         this.sensor = sensor;
+        l = Logger.getLogger(InstagramProducer.class.getName());
         semantria = null;
         kafkaProducer = new KafkaProducer(new ZkKafkaBrokers());
         kafkaProducer.prepare();
-
-    }
-
-    public void updateTasks() {
-
-        List<String> newTask = new ArrayList<>();
-        List<String> taskToRemove = new ArrayList<>();
-
-        taskToRemove.addAll(runningTask);
-
-        newTask.add(sensor.getUniqueId());
-
-        System.out.println("[Instagram] RUNNING TASK: " + runningTask);
-        taskToRemove.removeAll(newTask);
-        System.out.println("[Instagram] TASK TO REMOVE: " + taskToRemove);
-        newTask.removeAll(runningTask);
-        System.out.println("[Instagram] TASK TO ADD: " + newTask);
-
-        if (newTask.contains(sensor.getUniqueId())) {
-            runningTask.add(sensor.getUniqueId());
-            openClient(sensor);
-        }
-
-        if(taskToRemove.contains(sensor.getUniqueId())){
-            runningTask.remove(sensor.getUniqueId());
-            closeClient();
-        }
-
-        System.out.println("[Instagram] RUNNING TASK: " + runningTask);
 
     }
 
@@ -115,7 +78,7 @@ public class InstagramConsumer extends Thread {
 
                     r = r / RAD;
 
-                    System.out.println("COORDINATES [lat: " + mean_lat + " long:" + mean_lng + " r: " + r + "]");
+                    l.debug("COORDINATES [lat: " + mean_lat + " long:" + mean_lng + " r: " + r + "]");
                     feedGeographies = client.searchMedia(mean_lat,
                             mean_lng, max, min, (int) Math.round(r));
 
@@ -129,7 +92,7 @@ public class InstagramConsumer extends Thread {
                 }
 
                 List<MediaFeedData> locationsData = feedGeographies.getData();
-                System.out.println("Return instagram query, result size: " + locationsData.size());
+                l.debug("Return instagram query from " + sensor.getSensorName() + ", result size: " + locationsData.size());
                 for (MediaFeedData mediaData : locationsData) {
 
                     Map<String, Object> data = complexToSimple(mediaData);
@@ -142,9 +105,8 @@ public class InstagramConsumer extends Thread {
                         data.put("language", "unknown");
 
                         String json = mapper.writeValueAsString(data);
-                        System.out.println("Added msg to queueId: " + sensor.getUniqueId() + "\n" + json);
-                        kafkaProducer.send("rb_social", json);
-                        //msgQueue.get(sensor.getUniqueId()).put(json);
+                        l.debug("Added msg to queueId: " + sensor.getUniqueId() + "\n" + json);
+                        msgQueue.get(sensor.getUniqueId()).put(json);
 
                     }
                 }
@@ -160,21 +122,18 @@ public class InstagramConsumer extends Thread {
 
     }
 
-    private void openClient(InstagramSensor sensor) {
+    protected void openClient(InstagramSensor sensor) {
         this.client = new Instagram(sensor.getClientId());
         this.locations = sensor.getLocationFilter();
         msgQueue.put(sensor.getUniqueId(), new LinkedBlockingQueue<String>(100000));
 
-        /* Ejecuta run() cada 60 segundos */
-        exec = Executors.newSingleThreadScheduledExecutor();
-
-        exec.scheduleAtFixedRate(this, 0, activityPeriod, TimeUnit.SECONDS);
+        /* Executes run() each activityPeriod */
+        thread = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this, 0, activityPeriod, TimeUnit.SECONDS);
     }
 
 
-    private void closeClient() {
-        if (!exec.isShutdown())
-            exec.shutdown();
+    protected void closeClient(InstagramSensor sensor) {
+        thread.cancel(true);
     }
 
     private Map<String, Object> complexToSimple(MediaFeedData data) throws IOException {
@@ -189,12 +148,12 @@ public class InstagramConsumer extends Thread {
             map.put("msg", msg);
 
             try {
-                String hashtags = parseHashtags(msg);
-                String mentions = parseMentions(msg);
+                List<String> hashtags = parseHashtags(msg);
+                List<String> mentions = parseMentions(msg);
                 if (hashtags != null)
-                    map.put("hashtags", hashtags);
+                    map.put("hashtags", listToString(hashtags));
                 if (mentions != null)
-                    map.put("mentions", mentions);
+                    map.put("mentions", listToString(mentions));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -217,7 +176,7 @@ public class InstagramConsumer extends Thread {
         return map;
     }
 
-    private String parseHashtags(String msg) {
+    private List<String> parseHashtags(String msg) {
 
         List<String> found = new ArrayList<>();
         int howMany = StringUtils.countMatches(msg, "#");
@@ -235,13 +194,13 @@ public class InstagramConsumer extends Thread {
 
                 found.add(tag);
             }
-            return listToString(found);
+            return found;
         } else {
             return null;
         }
     }
 
-    private String parseMentions(String msg) {
+    private List<String> parseMentions(String msg) {
 
         List<String> found = new ArrayList<>();
         int howMany = StringUtils.countMatches(msg, "@");
@@ -259,7 +218,7 @@ public class InstagramConsumer extends Thread {
 
                 found.add(tag);
             }
-            return listToString(found);
+            return found;
         } else {
             return null;
         }
