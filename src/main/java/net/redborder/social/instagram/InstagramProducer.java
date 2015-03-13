@@ -44,7 +44,7 @@ public class InstagramProducer extends Thread {
         while (true) {
             try {
                 if (semantria == null) {
-                    l.info("Sending " + msgQueue.size() + " instagram msgs");
+                    l.debug("Sending " + msgQueue.size() + " instagram msgs");
                     while (!msgQueue.isEmpty()) {
 
                         String msg = msgQueue.take();
@@ -81,7 +81,7 @@ public class InstagramProducer extends Thread {
 
                         // rb_social msg send
                         producer.send("rb_social", msg);
-                        l.info("Message sent to Kafka: " + msg);
+                        l.debug("Message sent to Kafka: " + msg);
                     }
                 } else {
                     List<String> events = null;

@@ -78,7 +78,7 @@ public class InstagramConsumer extends Thread {
 
                     r = r / RAD;
 
-                    l.info("COORDINATES [lat: " + mean_lat + " long:" + mean_lng + " r: " + r + "]");
+                    l.debug("COORDINATES [lat: " + mean_lat + " long:" + mean_lng + " r: " + r + "]");
                     feedGeographies = client.searchMedia(mean_lat,
                             mean_lng, max, min, (int) Math.round(r));
 
@@ -92,7 +92,7 @@ public class InstagramConsumer extends Thread {
                 }
 
                 List<MediaFeedData> locationsData = feedGeographies.getData();
-                l.info("Return instagram query from " + sensor.getSensorName() + ", result size: " + locationsData.size());
+                l.debug("Return instagram query from " + sensor.getSensorName() + ", result size: " + locationsData.size());
                 for (MediaFeedData mediaData : locationsData) {
 
                     Map<String, Object> data = complexToSimple(mediaData);
@@ -105,7 +105,7 @@ public class InstagramConsumer extends Thread {
                         data.put("language", "unknown");
 
                         String json = mapper.writeValueAsString(data);
-                        l.info("Added msg to queueId: " + sensor.getUniqueId() + "\n" + json);
+                        l.debug("Added msg to queueId: " + sensor.getUniqueId() + "\n" + json);
                         msgQueue.get(sensor.getUniqueId()).put(json);
 
                     }
