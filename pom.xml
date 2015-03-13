@@ -13,6 +13,14 @@
         <tag>HEAD</tag>
     </scm>
 
+    <repositories>
+        <repository>
+            <id>internal</id>
+            <name>redBorder Internal Repository</name>
+            <url>http://archiva.redborder.lan/repository/internal/</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>net.redborder</groupId>
@@ -67,7 +75,7 @@
                     <appendAssemblyId>false</appendAssemblyId>
                     <archive>
                         <manifest>
-                            <mainClass>net.redborder.malware.sequencefile.SequenceFileService</mainClass>
+                            <mainClass>net.redborder.social.SocialServer</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
