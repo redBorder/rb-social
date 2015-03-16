@@ -26,6 +26,9 @@ public class SematriaSentiment {
     private Map<String, Map<String, Object>> events;
     private ObjectMapper mapper;
 
+    private List<String> twitter_fail;
+    private List<String> instagram_fail;
+
 
     public SematriaSentiment() {
 
@@ -35,6 +38,8 @@ public class SematriaSentiment {
 
         mapper = new ObjectMapper();
         events = new ConcurrentHashMap<>();
+        twitter_fail = new ArrayList<>();
+        instagram_fail = new ArrayList<>();
 
         if (key != null && secret != null && key.length() > 0 && secret.length() > 0) {
             session = Session.createSession(key, secret, true);
@@ -105,12 +110,44 @@ public class SematriaSentiment {
         Integer status = session.queueDocument(doc);
         if (status != 202) {
             System.out.println("\" ID: " + uid + "\" document queued fail! Status: " + status);
+
+            event.put("category", "unknown");
+            event.put("sentiment", "neutral");
+            event.put("language", "unknown");
+
+            try {
+                if (jobID.equals("twitter")) {
+                    synchronized (twitter_fail) {
+                        twitter_fail.add(mapper.writeValueAsString(event));
+                    }
+                } else if (jobID.equals("instagram")) {
+                    synchronized (instagram_fail) {
+                        instagram_fail.add(mapper.writeValueAsString(event));
+                    }
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
     public List<String> getEvents(String jobID) throws IOException {
         List<DocAnalyticData> docs = session.getProcessedDocumentsByJobId(jobID);
         List<String> eventToSend = new ArrayList<>();
+
+        if (jobID.equals("twitter")) {
+            synchronized (twitter_fail) {
+                eventToSend.addAll(twitter_fail);
+                twitter_fail.clear();
+            }
+        }
+        else if (jobID.equals("instagram")) {
+            synchronized (instagram_fail) {
+                eventToSend.addAll(instagram_fail);
+                instagram_fail.clear();
+            }
+        }
+
         for (DocAnalyticData doc : docs) {
             Map<String, Object> event = events.get(doc.getId());
             events.remove(doc.getId());
