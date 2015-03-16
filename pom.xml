@@ -29,7 +29,7 @@
         <dependency>
             <groupId>com.semantria</groupId>
             <artifactId>SemantriaJavaSDK</artifactId>
-            <version>3.5.75</version>
+            <version>3.7.78</version>
         </dependency>
 
         <!-- Twitter Client -->

@@ -95,23 +95,26 @@ public class SematriaSentiment {
         }
     }
 
-    public void addEvent(Map<String, Object> event) {
+    public void addEvent(Map<String, Object> event, String jobID) {
         String uid = String.valueOf(event.hashCode());
         events.put(uid, event);
         String text = (String) event.get("msg");
 
-        if (session.queueDocument(new Document(uid, text)) != 202) {
-            System.out.println("\"" + uid + "\" document queued fail!");
+        Document doc = new Document(uid, text);
+        doc.setJobId(jobID);
+        Integer status = session.queueDocument(doc);
+        if (status != 202) {
+            System.out.println("\" ID: " + uid + "\" document queued fail! Status: " + status);
         }
     }
 
-    public List<String> getEvents() throws IOException {
-        List<DocAnalyticData> docs = session.getProcessedDocuments();
+    public List<String> getEvents(String jobID) throws IOException {
+        List<DocAnalyticData> docs = session.getProcessedDocumentsByJobId(jobID);
         List<String> eventToSend = new ArrayList<>();
         for (DocAnalyticData doc : docs) {
             Map<String, Object> event = events.get(doc.getId());
             events.remove(doc.getId());
-            if(event != null) {
+            if (event != null) {
                 Float score = doc.getSentimentScore();
                 if (score > 0) {
                     event.put("sentiment", "positive");

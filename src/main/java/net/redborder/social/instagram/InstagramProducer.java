@@ -86,7 +86,7 @@ public class InstagramProducer extends Thread {
                 } else {
                     List<String> events = null;
                     try {
-                        events = semantria.getEvents();
+                        events = semantria.getEvents("instagram");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

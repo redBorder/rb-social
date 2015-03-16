@@ -60,7 +60,7 @@ public class TwitterProducer extends Thread {
 
                     if(data!=null) {
                         if (semantria != null)
-                            semantria.addEvent((Map<String, Object>) data.get("tweet"));
+                            semantria.addEvent((Map<String, Object>) data.get("tweet"), "twitter");
 
                         List<Map<String, Object>> hashTags = (List<Map<String, Object>>) data.get("hashtags");
 
@@ -87,7 +87,7 @@ public class TwitterProducer extends Thread {
                         }
 
                         if (semantria != null) {
-                            List<String> msgs = semantria.getEvents();
+                            List<String> msgs = semantria.getEvents("twitter");
                             for (String msgToSend : msgs)
                                 producer.send("rb_social", msgToSend);
                         } else {

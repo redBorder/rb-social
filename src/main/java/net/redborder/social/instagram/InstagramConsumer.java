@@ -46,7 +46,7 @@ public class InstagramConsumer extends Thread {
         this.msgQueue = msgQueue;
         this.sensor = sensor;
         l = Logger.getLogger(InstagramProducer.class.getName());
-        semantria = null;
+        semantria = SematriaSentiment.getInstance();
         kafkaProducer = new KafkaProducer(new ZkKafkaBrokers());
         kafkaProducer.prepare();
 
@@ -98,7 +98,7 @@ public class InstagramConsumer extends Thread {
                     Map<String, Object> data = complexToSimple(mediaData);
 
                     if (semantria != null) {
-                        semantria.addEvent(data);
+                        semantria.addEvent(data, "instagram");
                     } else {
                         data.put("sentiment", "unknown");
                         data.put("category", "unknown");
