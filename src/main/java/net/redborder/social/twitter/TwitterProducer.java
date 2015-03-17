@@ -271,7 +271,7 @@ public class TwitterProducer extends Thread {
         hashtagStr = hashtagStr + " ";
 
         if (hashtagStr.length() > 2)
-            simpleTweet.put("hashtags", hashtagStr.trim());
+            simpleTweet.put("hashtags", hashtagStr);
 
         String urlsList = " ";
         for (Map<String, Object> url : urls) {
@@ -284,7 +284,7 @@ public class TwitterProducer extends Thread {
         urlsList = urlsList + " ";
 
         if (urlsList.length() > 2)
-            simpleTweet.put("urls", urlsList.trim());
+            simpleTweet.put("urls", urlsList);
 
         String mentionsList = " ";
         for (Map<String, Object> user_mention : user_mentions) {
@@ -298,7 +298,7 @@ public class TwitterProducer extends Thread {
         mentionsList = mentionsList + " ";
 
         if (mentionsList.length() > 2)
-            simpleTweet.put("mentions", mentionsList.trim());
+            simpleTweet.put("mentions", mentionsList);
 
 
         Map<String, Object> data = new HashMap<>();
