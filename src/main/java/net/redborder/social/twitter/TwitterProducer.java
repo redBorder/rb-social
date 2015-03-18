@@ -58,7 +58,7 @@ public class TwitterProducer extends Thread {
                 try {
                     data = complexToSimple(msg);
 
-                    if(data!=null) {
+                    if (data != null) {
                         if (semantria != null)
                             semantria.addEvent((Map<String, Object>) data.get("tweet"), "twitter");
 
@@ -222,7 +222,7 @@ public class TwitterProducer extends Thread {
                 //System.out.println(" > " +  Double.valueOf(longLatSouthWest[0].trim()) + " < " +  Double.valueOf(longLatNorthEast[0].trim()));
 
                 if (lat != 0 && lon != 0) {
-                    if (lat > Double.valueOf(longLatSouthWest[1].trim()) && lat < Double.valueOf(longLatNorthEast[1].trim()) && lon > Double.valueOf(longLatSouthWest[0].trim()) && lon <  Double.valueOf(longLatNorthEast[0].trim())) {
+                    if (lat > Double.valueOf(longLatSouthWest[1].trim()) && lat < Double.valueOf(longLatNorthEast[1].trim()) && lon > Double.valueOf(longLatSouthWest[0].trim()) && lon < Double.valueOf(longLatNorthEast[0].trim())) {
                         simpleTweet.put("client_latlong", lat + "," + lon);
                         intoSquare = true;
                         break;
@@ -250,62 +250,63 @@ public class TwitterProducer extends Thread {
             simpleTweet.put("msg_share_count", retweet_count);
         if (favorite_count != null)
             simpleTweet.put("msg_favorite_count", favorite_count); */
+        Map<String, Object> data = new HashMap<>();
 
         Map<String, Object> entities = (Map<String, Object>) complexTweet.get("entities");
 
+        if (entities != null) {
 
-        List<Map<String, Object>> hashtags = (ArrayList<Map<String, Object>>) entities.get("hashtags");
-        List<Map<String, Object>> urls = (ArrayList<Map<String, Object>>) entities.get("urls");
-        List<Map<String, Object>> user_mentions = (ArrayList<Map<String, Object>>) entities.get("user_mentions");
+            List<Map<String, Object>> hashtags = (ArrayList<Map<String, Object>>) entities.get("hashtags");
+            List<Map<String, Object>> urls = (ArrayList<Map<String, Object>>) entities.get("urls");
+            List<Map<String, Object>> user_mentions = (ArrayList<Map<String, Object>>) entities.get("user_mentions");
 
-        simpleTweet.put("sensor_name", sensorName);
+            simpleTweet.put("sensor_name", sensorName);
 
-        String hashtagStr = " ";
-        for (Map<String, Object> hashtag : hashtags) {
-            if (!hashtag.isEmpty()) {
-                String text = (String) hashtag.get("text");
-                hashtagStr = hashtagStr + " #" + text;
+            String hashtagStr = " ";
+            for (Map<String, Object> hashtag : hashtags) {
+                if (!hashtag.isEmpty()) {
+                    String text = (String) hashtag.get("text");
+                    hashtagStr = hashtagStr + " #" + text;
+                }
             }
-        }
 
-        hashtagStr = hashtagStr + " ";
+            hashtagStr = hashtagStr + " ";
 
-        if (hashtagStr.length() > 2)
-            simpleTweet.put("hashtags", hashtagStr);
+            if (hashtagStr.length() > 2)
+                simpleTweet.put("hashtags", hashtagStr);
 
-        String urlsList = " ";
-        for (Map<String, Object> url : urls) {
-            if (!url.isEmpty()) {
-                String text = (String) url.get("expanded_url");
-                urlsList = urlsList + " " + text;
+            String urlsList = " ";
+            for (Map<String, Object> url : urls) {
+                if (!url.isEmpty()) {
+                    String text = (String) url.get("expanded_url");
+                    urlsList = urlsList + " " + text;
+                }
             }
-        }
 
-        urlsList = urlsList + " ";
+            urlsList = urlsList + " ";
 
-        if (urlsList.length() > 2)
-            simpleTweet.put("urls", urlsList);
+            if (urlsList.length() > 2)
+                simpleTweet.put("urls", urlsList);
 
-        String mentionsList = " ";
-        for (Map<String, Object> user_mention : user_mentions) {
-            if (!user_mention.isEmpty()) {
-                String text = (String) user_mention.get("screen_name");
-                if (!mentionsList.contains(text))
-                    mentionsList = mentionsList + " @" + text;
+            String mentionsList = " ";
+            for (Map<String, Object> user_mention : user_mentions) {
+                if (!user_mention.isEmpty()) {
+                    String text = (String) user_mention.get("screen_name");
+                    if (!mentionsList.contains(text))
+                        mentionsList = mentionsList + " @" + text;
+                }
             }
+
+            mentionsList = mentionsList + " ";
+
+            if (mentionsList.length() > 2)
+                simpleTweet.put("mentions", mentionsList);
+
+
+            data.put("hashtags", hashtags);
+            data.put("urls", urls);
+            data.put("user_mentions", user_mentions);
         }
-
-        mentionsList = mentionsList + " ";
-
-        if (mentionsList.length() > 2)
-            simpleTweet.put("mentions", mentionsList);
-
-
-        Map<String, Object> data = new HashMap<>();
-
-        data.put("hashtags", hashtags);
-        data.put("urls", urls);
-        data.put("user_mentions", user_mentions);
 
         if (semantria != null)
             data.put("tweet", simpleTweet);
@@ -328,7 +329,7 @@ public class TwitterProducer extends Thread {
             if (!hashtag.isEmpty()) {
                 Map<String, Object> hashCount = new HashMap<>();
                 String text = (String) hashtag.get("text");
-                hashCount.put("value", "#" +text);
+                hashCount.put("value", "#" + text);
                 hashCount.put("type", "hashtag");
                 hashCount.put("sensor_name", sensorName);
                 hashCount.put("timestamp", System.currentTimeMillis() / 1000);
@@ -360,7 +361,7 @@ public class TwitterProducer extends Thread {
             if (!user_mention.isEmpty()) {
                 Map<String, Object> user_mentionCount = new HashMap<>();
                 String text = (String) user_mention.get("screen_name");
-                user_mentionCount.put("value", "@" +text);
+                user_mentionCount.put("value", "@" + text);
                 user_mentionCount.put("type", "user_mention");
                 user_mentionCount.put("sensor_name", sensorName);
                 user_mentionCount.put("timestamp", System.currentTimeMillis() / 1000);
