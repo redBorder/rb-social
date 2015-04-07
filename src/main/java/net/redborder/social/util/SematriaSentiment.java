@@ -45,7 +45,33 @@ public class SematriaSentiment {
 
         if (key != null && secret != null && key.length() > 0 && secret.length() > 0) {
             session = Session.createSession(key, secret, new JsonSerializer(), true);
-            session.setCallbackHandler(new CallbackHandler());
+            session.setCallbackHandler(new ICallbackHandler() {
+                @Override
+                public void onResponse(Object o, ResponseArgs responseArgs) {
+
+                }
+
+                @Override
+                public void onRequest(Object o, RequestArgs requestArgs) {
+
+                }
+
+                @Override
+                public void onError(Object o, ResponseArgs responseArgs) {
+                    System.out.println("HTTP status " + Integer.toString(responseArgs.getStatus().intValue()) + " error message: " + responseArgs.getMessage());
+
+                }
+
+                @Override
+                public void onDocsAutoResponse(Object o, List<DocAnalyticData> list) {
+
+                }
+
+                @Override
+                public void onCollsAutoResponse(Object o, List<CollAnalyticData> list) {
+
+                }
+            });
         }
     }
 
@@ -79,31 +105,33 @@ public class SematriaSentiment {
 
     public void addEvent(Map<String, Object> event, String jobID) {
         String uid = String.valueOf(event.hashCode());
-        events.put(uid, event);
         String text = (String) event.get("msg");
 
-        Document doc = new Document(uid, text);
-        doc.setJobId(jobID);
-        Integer status = session.queueDocument(doc);
-        if (status != 202) {
-            System.out.println("\" ID: " + uid + "\" document queued fail! Status: " + status);
+        if(text.length()>0) {
+            events.put(uid, event);
+            Document doc = new Document(uid, text);
+            doc.setJobId(jobID);
+            Integer status = session.queueDocument(doc);
+            if (status != 202) {
+                System.out.println("\" ID: " + uid + "\" document queued fail! Status: " + status);
 
-            event.put("category", "unknown");
-            event.put("sentiment", "neutral");
-            event.put("language", "unknown");
+                event.put("category", "unknown");
+                event.put("sentiment", "neutral");
+                event.put("language", "unknown");
 
-            try {
-                if (jobID.equals("twitter")) {
-                    synchronized (twitter_fail) {
-                        twitter_fail.add(mapper.writeValueAsString(event));
+                try {
+                    if (jobID.equals("twitter")) {
+                        synchronized (twitter_fail) {
+                            twitter_fail.add(mapper.writeValueAsString(event));
+                        }
+                    } else if (jobID.equals("instagram")) {
+                        synchronized (instagram_fail) {
+                            instagram_fail.add(mapper.writeValueAsString(event));
+                        }
                     }
-                } else if (jobID.equals("instagram")) {
-                    synchronized (instagram_fail) {
-                        instagram_fail.add(mapper.writeValueAsString(event));
-                    }
+                } catch (IOException ex) {
+                    ex.printStackTrace();
                 }
-            } catch (IOException ex) {
-                ex.printStackTrace();
             }
         }
     }
