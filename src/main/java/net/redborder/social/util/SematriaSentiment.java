@@ -1,9 +1,11 @@
 package net.redborder.social.util;
 
+import com.semantria.CallbackHandler;
 import com.semantria.Session;
 import com.semantria.interfaces.ICallbackHandler;
 import com.semantria.mapping.Document;
 import com.semantria.mapping.output.*;
+import com.semantria.serializer.JsonSerializer;
 import com.semantria.utils.RequestArgs;
 import com.semantria.utils.ResponseArgs;
 import org.codehaus.jackson.JsonGenerationException;
@@ -42,33 +44,8 @@ public class SematriaSentiment {
         instagram_fail = new ArrayList<>();
 
         if (key != null && secret != null && key.length() > 0 && secret.length() > 0) {
-            session = Session.createSession(key, secret, true);
-            session.setCallbackHandler(new ICallbackHandler() {
-                @Override
-                public void onResponse(Object o, ResponseArgs responseArgs) {
-
-                }
-
-                @Override
-                public void onRequest(Object o, RequestArgs requestArgs) {
-
-                }
-
-                @Override
-                public void onError(Object o, ResponseArgs responseArgs) {
-
-                }
-
-                @Override
-                public void onDocsAutoResponse(Object o, List<DocAnalyticData> list) {
-
-                }
-
-                @Override
-                public void onCollsAutoResponse(Object o, List<CollAnalyticData> list) {
-
-                }
-            });
+            session = Session.createSession(key, secret, new JsonSerializer(), true);
+            session.setCallbackHandler(new CallbackHandler());
         }
     }
 
