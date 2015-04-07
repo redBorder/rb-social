@@ -107,7 +107,7 @@ public class SematriaSentiment {
         String uid = String.valueOf(event.hashCode());
         String text = (String) event.get("msg");
 
-        if(text.length()>0) {
+        if(text != null && text.length()>0) {
             events.put(uid, event);
             Document doc = new Document(uid, text);
             doc.setJobId(jobID);
