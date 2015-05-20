@@ -10,6 +10,7 @@ import com.semantria.utils.RequestArgs;
 import com.semantria.utils.ResponseArgs;
 import com.twitter.hbc.core.endpoint.Location;
 import net.redborder.social.util.SematriaSentiment;
+import net.redborder.social.util.Sensor;
 import net.redborder.social.util.kafka.KafkaProducer;
 import net.redborder.social.util.kafka.ZkKafkaBrokers;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -29,15 +30,17 @@ public class TwitterProducer extends Thread {
     BlockingQueue<String> msgQueue;
     ObjectMapper mapper;
     String sensorName;
+    Map<String, Object> enrichment;
     SematriaSentiment semantria;
     List<List<String>> locations;
 
 
-    public TwitterProducer(BlockingQueue<String> msgQueue, String sensorName, List<List<String>> locations) {
+    public TwitterProducer(BlockingQueue<String> msgQueue, Sensor sensor, List<List<String>> locations) {
         producer = new KafkaProducer(new ZkKafkaBrokers());
         producer.prepare();
         this.msgQueue = msgQueue;
-        this.sensorName = sensorName;
+        this.sensorName = sensor.getSensorName();
+        this.enrichment = sensor.getEnrichment();
         mapper = new ObjectMapper();
         SematriaSentiment.init();
         semantria = SematriaSentiment.getInstance();
@@ -261,6 +264,7 @@ public class TwitterProducer extends Thread {
             List<Map<String, Object>> user_mentions = (ArrayList<Map<String, Object>>) entities.get("user_mentions");
 
             simpleTweet.put("sensor_name", sensorName);
+            simpleTweet.putAll(enrichment);
 
             String hashtagStr = " ";
             for (Map<String, Object> hashtag : hashtags) {
@@ -332,6 +336,7 @@ public class TwitterProducer extends Thread {
                 hashCount.put("value", "#" + text);
                 hashCount.put("type", "hashtag");
                 hashCount.put("sensor_name", sensorName);
+                hashCount.putAll(enrichment);
                 hashCount.put("timestamp", System.currentTimeMillis() / 1000);
                 hashtagsList.add(mapper.writeValueAsString(hashCount));
             }
@@ -348,6 +353,7 @@ public class TwitterProducer extends Thread {
                 urlCount.put("value", text);
                 urlCount.put("type", "url");
                 urlCount.put("sensor_name", sensorName);
+                urlCount.putAll(enrichment);
                 urlCount.put("timestamp", System.currentTimeMillis() / 1000);
                 urlsList.add(mapper.writeValueAsString(urlCount));
             }
@@ -364,6 +370,7 @@ public class TwitterProducer extends Thread {
                 user_mentionCount.put("value", "@" + text);
                 user_mentionCount.put("type", "user_mention");
                 user_mentionCount.put("sensor_name", sensorName);
+                user_mentionCount.putAll(enrichment);
                 user_mentionCount.put("timestamp", System.currentTimeMillis() / 1000);
                 mentionsList.add(mapper.writeValueAsString(user_mentionCount));
             }

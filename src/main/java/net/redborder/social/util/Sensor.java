@@ -22,6 +22,14 @@ public abstract class Sensor extends MappedTask{
         return (String) getData("name");
     }
 
+    public Map<String, Object> getEnrichment(){
+        return  getData("enrichment") != null ? (Map<String, Object>) getData("enrichment") : new HashMap<String, Object>();
+    }
+
+    public void setEnrichment(Map<String, Object> enrichment){
+        setData("enrichment", enrichment);
+    }
+
     public void setSensorName(String name) {
         setData("name", name);
     }

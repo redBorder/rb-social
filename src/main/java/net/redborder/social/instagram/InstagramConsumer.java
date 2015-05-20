@@ -163,6 +163,8 @@ public class InstagramConsumer extends Thread {
         //map.put("followers", 0);
         //map.put("friends", 0);
         map.put("sensor_name", sensor.getSensorName());
+        map.putAll(sensor.getEnrichment());
+
         //map.put("src_country_code", "");
         //map.put("msg_send_from", "");
         map.put("client_id", data.getUser().getId());

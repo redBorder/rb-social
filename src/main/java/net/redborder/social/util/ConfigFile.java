@@ -91,6 +91,7 @@ public class ConfigFile {
                         String sensor_name_twitter = (String) sensor.get("sensor_name");
                         List<List<String>> locations_filters_twitter = (List<List<String>>) sensor.get("location_filter");
                         List<String> texts_filter = (List<String>) sensor.get("text_filter");
+                        Map<String, Object> enrichment_twitter = (Map<String, Object>) sensor.get("enrichment");
 
                         Sensor sensorNameTwitter = new TwitterSensor(sensor_name_twitter + "_twitter");
 
@@ -99,6 +100,7 @@ public class ConfigFile {
                         conf_twitter.setConsumerSecret(consumer_secret);
                         conf_twitter.setTokenKey(token_key);
                         conf_twitter.setTokenSecret(token_secret);
+                        conf_twitter.setEnrichment(enrichment_twitter);
 
                         if (locations_filters_twitter != null) {
                             conf_twitter.setLocation(locations_filters_twitter);
@@ -120,6 +122,7 @@ public class ConfigFile {
                         String callback_url = (String) sensor.get("callback_url");
                         String sensor_name_instagram = (String) sensor.get("sensor_name");
                         List<List<String>> locations_filters_instagram = (List<List<String>>) sensor.get("location_filter");
+                        Map<String, Object> enrichment_instagram = (Map<String, Object>) sensor.get("enrichment");
 
                         Sensor sensorNameInstagram = new InstagramSensor(sensor_name_instagram + "_instagram");
 
@@ -130,6 +133,7 @@ public class ConfigFile {
                         conf_instagram.setClientId(client_id);
                         conf_instagram.setClientSecret(client_secret);
                         conf_instagram.setLocationFilter(locations_filters_instagram);
+                        conf_instagram.setEnrichment(enrichment_instagram);
 
                         instagramList.add(conf_instagram);
 

@@ -60,20 +60,22 @@ public class InstagramProducer extends Thread {
                         if (mentionNode != null) {
                             mentions = mentionNode.getTextValue().split(" ");
                         }
-                        for (String hash : hashtags){
+                        for (String hash : hashtags) {
                             Map<String, Object> hashMap = new HashMap<>();
                             hashMap.put("type", "hashtag");
                             hashMap.put("value", hash);
                             hashMap.put("sensor_name", this.sensor.getSensorName());
+                            hashMap.putAll(this.sensor.getEnrichment());
                             hashMap.put("timestamp", System.currentTimeMillis() / 1000);
                             l.info("Sending " + mapper.writeValueAsString(hashMap) + " to rb_hashtag");
                             producer.send("rb_hashtag", mapper.writeValueAsString(hashMap));
                         }
-                        for (String mention : mentions){
+                        for (String mention : mentions) {
                             Map<String, Object> hashMap = new HashMap<>();
                             hashMap.put("type", "user_mention");
                             hashMap.put("value", mention);
                             hashMap.put("sensor_name", this.sensor.getSensorName());
+                            hashMap.putAll(this.sensor.getEnrichment());
                             hashMap.put("timestamp", System.currentTimeMillis() / 1000);
                             l.info("Sending " + mapper.writeValueAsString(hashMap) + " to rb_hashtag");
                             producer.send("rb_hashtag", mapper.writeValueAsString(hashMap));
@@ -90,7 +92,7 @@ public class InstagramProducer extends Thread {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    if(events != null) {
+                    if (events != null) {
                         for (String msg : events) {
                             producer.send("rb_social", msg);
                         }
@@ -99,7 +101,7 @@ public class InstagramProducer extends Thread {
                 Thread.sleep(sleepPeriod);
             } catch (InterruptedException e) {
                 l.warn("InstagramProducer thread " + this.sensor.getUniqueId() + " interrupted");
-            }  catch (IOException e){
+            } catch (IOException e) {
                 l.error("IO Exception on InstagramProducer thread " + this.sensor.getUniqueId());
                 e.printStackTrace();
             }
