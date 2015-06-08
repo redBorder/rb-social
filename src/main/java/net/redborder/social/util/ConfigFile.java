@@ -7,8 +7,8 @@ package net.redborder.social.util;
 
 import net.redborder.social.instagram.InstagramSensor;
 import net.redborder.social.twitter.TwitterSensor;
-import net.redborder.taskassigner.MappedTask;
-import net.redborder.taskassigner.Task;
+import net.redborder.clusterizer.MappedTask;
+import net.redborder.clusterizer.Task;
 import org.ho.yaml.Yaml;
 
 import java.io.File;

@@ -1,6 +1,6 @@
 package net.redborder.social.util;
 
-import net.redborder.taskassigner.MappedTask;
+import net.redborder.clusterizer.MappedTask;
 
 import java.util.HashMap;
 import java.util.Map;

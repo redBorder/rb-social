@@ -5,8 +5,8 @@ import net.redborder.social.twitter.TwitterManager;
 import net.redborder.social.util.ConfigFile;
 import net.redborder.social.util.Sensor;
 import net.redborder.social.util.SensorType;
-import net.redborder.taskassigner.Task;
-import net.redborder.taskassigner.ZkTasksHandler;
+import net.redborder.clusterizer.Task;
+import net.redborder.clusterizer.ZkTasksHandler;
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
 
@@ -44,13 +44,15 @@ public class SocialServer {
                 tasks.add(s);
             }
 
-            tasksHandler.setTasks(tasks);
 
             twitterManager = new TwitterManager();
             instagramManager = new InstagramManager();
 
             tasksHandler.addListener(twitterManager);
             tasksHandler.addListener(instagramManager);
+
+            tasksHandler.setTasks(tasks);
+            tasksHandler.wakeup();
 
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 public void run() {
@@ -83,10 +85,12 @@ public class SocialServer {
                         tasks.add(s);
                     }
 
-                    tasksHandler.setTasks(tasks);
                     twitterManager.reload();
                     instagramManager.reload();
                     tasksHandler.reload();
+
+                    tasksHandler.setTasks(tasks);
+                    tasksHandler.wakeup();
                     System.out.println("Reload finished!");
                 }
             });

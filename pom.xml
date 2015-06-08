@@ -22,8 +22,8 @@
     <dependencies>
         <dependency>
             <groupId>net.redborder</groupId>
-            <artifactId>rb-task-assinger</artifactId>
-            <version>1.4</version>
+            <artifactId>clusterizer</artifactId>
+            <version>0.3.0</version>
         </dependency>
 
         <dependency>

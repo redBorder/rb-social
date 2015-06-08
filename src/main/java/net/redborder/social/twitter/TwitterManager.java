@@ -3,9 +3,9 @@ package net.redborder.social.twitter;
 import net.redborder.social.util.ConfigFile;
 import net.redborder.social.util.Sensor;
 import net.redborder.social.util.SensorType;
-import net.redborder.taskassigner.MappedTask;
-import net.redborder.taskassigner.Task;
-import net.redborder.taskassigner.TasksChangedListener;
+import net.redborder.clusterizer.MappedTask;
+import net.redborder.clusterizer.Task;
+import net.redborder.clusterizer.TasksChangedListener;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;

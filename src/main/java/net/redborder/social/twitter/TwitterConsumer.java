@@ -14,7 +14,7 @@ import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
 import net.redborder.social.util.Sensor;
-import net.redborder.taskassigner.TasksChangedListener;
+import net.redborder.clusterizer.TasksChangedListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;

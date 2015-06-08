@@ -3,9 +3,9 @@ package net.redborder.social.instagram;
 import net.redborder.social.util.ConfigFile;
 import net.redborder.social.util.Sensor;
 import net.redborder.social.util.SensorType;
-import net.redborder.taskassigner.MappedTask;
-import net.redborder.taskassigner.Task;
-import net.redborder.taskassigner.TasksChangedListener;
+import net.redborder.clusterizer.MappedTask;
+import net.redborder.clusterizer.Task;
+import net.redborder.clusterizer.TasksChangedListener;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -38,16 +38,14 @@ public class InstagramManager implements TasksChangedListener {
         /* Obtain instagram sensors */
         List<Sensor> tasks = ConfigFile.getInstance().getSensors(SensorType.INSTAGRAM);
         List<Sensor> reallyTask = new ArrayList<>();
-         List<InstagramSensor> instagramSensors = new ArrayList<>();
+        List<InstagramSensor> instagramSensors = new ArrayList<>();
 
-
-
-        for(Task sensorName : list){
-            for(Sensor task : tasks){       // For each instagram sensor
+        for (Task sensorName : list) {
+            for (Sensor task : tasks) {       // For each instagram sensor
                 MappedTask sensorTask = (MappedTask) sensorName;
                 InstagramSensor sensor = new InstagramSensor(sensorTask.asMap());
                 // If the specified name is the task's name
-                if(sensor.getSensorName().equals(task.getSensorName() + "_instagram")){
+                if (sensor.getSensorName().equals(task.getSensorName() + "_instagram")) {
                     reallyTask.add(task);       // Add the task
                 }
             }
@@ -64,18 +62,18 @@ public class InstagramManager implements TasksChangedListener {
 
         taskToRemove.addAll(runningTask);
 
-        l.info("[Instagram] RUNNING TASK: " + runningTask);
+        System.out.println("[Instagram] RUNNING TASK: " + runningTask);
         taskToRemove.removeAll(newTask);
-        l.info("[Instagram] TASK TO REMOVE: " + taskToRemove);
+        System.out.println("[Instagram] TASK TO REMOVE: " + taskToRemove);
         newTask.removeAll(runningTask);
-        l.info("[Instagram] TASK TO ADD: " + newTask);
+        System.out.println("[Instagram] TASK TO ADD: " + newTask);
 
         runningTask.addAll(newTask);
         runningTask.removeAll(taskToRemove);
 
         for (InstagramSensor instagramSensor : instagramSensors) {
             /* Instantiate an instagram consumer for each task */
-            if (newTask.contains( instagramSensor.getUniqueId() )) {
+            if (newTask.contains(instagramSensor.getUniqueId())) {
                 InstagramConsumer consumer = new InstagramConsumer(instagramSensor, msgQueue);
                 consumers.put(instagramSensor.getUniqueId(), consumer);
                 consumers.get(instagramSensor.getUniqueId()).openClient(instagramSensor);
@@ -86,7 +84,7 @@ public class InstagramManager implements TasksChangedListener {
                 producer.start();
             }
 
-            if (taskToRemove.contains( instagramSensor.getUniqueId() )){
+            if (taskToRemove.contains(instagramSensor.getUniqueId())) {
                 InstagramConsumer consumer = consumers.get(instagramSensor.getUniqueId());
                 consumer.closeClient(instagramSensor);
                 consumers.remove(instagramSensor.getUniqueId());
@@ -98,17 +96,17 @@ public class InstagramManager implements TasksChangedListener {
 
         }
 
-        l.info("[Instagram] RUNNING TASK: " + runningTask);
+        System.out.println("[Instagram] RUNNING TASK: " + runningTask);
 
     }
 
-    public void end(){
+    public void end() {
         for (InstagramProducer producer : producers.values()) {
             producer.end();
         }
     }
 
-    public void reload(){
+    public void reload() {
         for (InstagramProducer producer : producers.values()) {
             producer.reload();
         }
