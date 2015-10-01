@@ -189,10 +189,10 @@ public class InstagramConsumer extends Thread {
                 int indexEnd = msg.indexOf(" ", index);
                 String tag;
                 if (indexEnd >= 0) {
-                    tag = msg.substring(index + 1, indexEnd);
+                    tag = msg.substring(index, indexEnd);
                     lastIndex = indexEnd;
                 } else
-                    tag = msg.substring(index + 1);
+                    tag = msg.substring(index);
 
                 found.add(tag);
             }
