@@ -46,6 +46,7 @@ public class InstagramConsumer extends Thread {
         this.msgQueue = msgQueue;
         this.sensor = sensor;
         l = Logger.getLogger(InstagramProducer.class.getName());
+        SematriaSentiment.init();
         semantria = SematriaSentiment.getInstance();
         kafkaProducer = new KafkaProducer(new ZkKafkaBrokers());
         kafkaProducer.prepare();
