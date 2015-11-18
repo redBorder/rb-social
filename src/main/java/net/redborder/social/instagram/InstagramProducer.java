@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 
 /**
- * Created by andresgomez on 29/1/15.
+ * Created by fernandodominguez on 29/1/15.
  */
 public class InstagramProducer extends Thread {
 
@@ -35,7 +35,7 @@ public class InstagramProducer extends Thread {
         this.sensor = sensor;
         mapper = new ObjectMapper();
         SematriaSentiment.init();
-        semantria = null;
+        semantria = SematriaSentiment.getInstance();
         l = Logger.getLogger(InstagramProducer.class.getName());
     }
 
@@ -43,49 +43,7 @@ public class InstagramProducer extends Thread {
     public void run() {
         while (true) {
             try {
-                if (semantria == null) {
-                    l.debug("Sending " + msgQueue.size() + " instagram msgs");
-                    while (!msgQueue.isEmpty()) {
-
-                        String msg = msgQueue.take();
-                        String[] hashtags = {};
-                        String[] mentions = {};
-
-                        JsonNode rootNode = new ObjectMapper().readTree(new StringReader(msg));
-                        JsonNode hashtagNode = rootNode.get("hashtags");
-                        if (hashtagNode != null) {
-                            hashtags = hashtagNode.getTextValue().split(" ");
-                        }
-                        JsonNode mentionNode = rootNode.get("mentions");
-                        if (mentionNode != null) {
-                            mentions = mentionNode.getTextValue().split(" ");
-                        }
-                        for (String hash : hashtags) {
-                            Map<String, Object> hashMap = new HashMap<>();
-                            hashMap.put("type", "hashtag");
-                            hashMap.put("value", hash);
-                            hashMap.put("sensor_name", this.sensor.getSensorName());
-                            hashMap.putAll(this.sensor.getEnrichment());
-                            hashMap.put("timestamp", System.currentTimeMillis() / 1000);
-                            l.info("Sending " + mapper.writeValueAsString(hashMap) + " to rb_hashtag");
-                            producer.send("rb_hashtag", mapper.writeValueAsString(hashMap));
-                        }
-                        for (String mention : mentions) {
-                            Map<String, Object> hashMap = new HashMap<>();
-                            hashMap.put("type", "user_mention");
-                            hashMap.put("value", mention);
-                            hashMap.put("sensor_name", this.sensor.getSensorName());
-                            hashMap.putAll(this.sensor.getEnrichment());
-                            hashMap.put("timestamp", System.currentTimeMillis() / 1000);
-                            l.info("Sending " + mapper.writeValueAsString(hashMap) + " to rb_hashtag");
-                            producer.send("rb_hashtag", mapper.writeValueAsString(hashMap));
-                        }
-
-                        // rb_social msg send
-                        producer.send("rb_social", msg);
-                        l.debug("Message sent to Kafka: " + msg);
-                    }
-                } else {
+                if (semantria != null) {
                     List<String> events = null;
                     try {
                         events = semantria.getEvents("instagram");
@@ -94,10 +52,49 @@ public class InstagramProducer extends Thread {
                     }
                     if (events != null) {
                         for (String msg : events) {
+
+                            Map<String, Object> hashtagMap = hashtagsFromMsg(msg);
+                            Map<String, Object> mentionsMap = mentionsFromMsg(msg);
+
+                            if (hashtagMap != null) {
+                                l.info("Sending " + mapper.writeValueAsString(hashtagMap) + " to rb_hashtag");
+                                producer.send("rb_hashtag", mapper.writeValueAsString(hashtagMap));
+                            }
+
+                            if (mentionsMap != null) {
+                                l.info("Sending " + mapper.writeValueAsString(mentionsMap) + " to rb_hashtag");
+                                producer.send("rb_hashtag", mapper.writeValueAsString(mentionsMap));
+                            }
+
                             producer.send("rb_social", msg);
                         }
                     }
+                }else{
+
+                    l.debug("Sending " + msgQueue.size() + " instagram msgs");
+                    while (!msgQueue.isEmpty()) {
+
+                        String msg = msgQueue.take();
+
+                        Map<String, Object> hashtagMap = hashtagsFromMsg(msg);
+                        Map<String, Object> mentionsMap = mentionsFromMsg(msg);
+
+                        if (hashtagMap != null) {
+                            l.info("Sending " + mapper.writeValueAsString(hashtagMap) + " to rb_hashtag");
+                            producer.send("rb_hashtag", mapper.writeValueAsString(hashtagMap));
+                        }
+
+                        if (mentionsMap != null) {
+                            l.info("Sending " + mapper.writeValueAsString(mentionsMap) + " to rb_hashtag");
+                            producer.send("rb_hashtag", mapper.writeValueAsString(mentionsMap));
+                        }
+
+                        // rb_social msg send
+                        producer.send("rb_social", msg);
+                        l.debug("Message sent to Kafka: " + msg);
+                    }
                 }
+
                 Thread.sleep(sleepPeriod);
             } catch (InterruptedException e) {
                 l.warn("InstagramProducer thread " + this.sensor.getUniqueId() + " interrupted");
@@ -115,5 +112,63 @@ public class InstagramProducer extends Thread {
 
     public void end() {
         producer.end();
+    }
+
+    private Map<String, Object> hashtagsFromMsg(String msg){
+
+        JsonNode rootNode;
+        JsonNode hashtagNode;
+        String[] hashtags;
+        Map<String, Object> hashMap = null;
+
+        try {
+            rootNode = new ObjectMapper().readTree(new StringReader(msg));
+            hashtagNode = rootNode.get("hashtags");
+            if (hashtagNode != null) {
+                hashtags = hashtagNode.getTextValue().split(" ");
+                for (String hash : hashtags) {
+                    hashMap = new HashMap<>();
+                    hashMap.put("type", "hashtag");
+                    hashMap.put("value", hash);
+                    hashMap.put("sensor_name", this.sensor.getSensorName());
+                    hashMap.putAll(this.sensor.getEnrichment());
+                    hashMap.put("timestamp", System.currentTimeMillis() / 1000);
+                }
+            }
+        }catch (IOException e){
+            l.error("IOException while parsing hashtags");
+            e.printStackTrace();
+        }
+
+        return hashMap;
+    }
+
+    private Map<String, Object> mentionsFromMsg(String msg){
+
+        JsonNode rootNode;
+        JsonNode mentionNode;
+        String[] mentions;
+        Map<String, Object> hashMap = null;
+
+        try {
+            rootNode = new ObjectMapper().readTree(new StringReader(msg));
+            mentionNode = rootNode.get("mentions");
+            if (mentionNode != null) {
+                mentions = mentionNode.getTextValue().split(" ");
+                for (String mention : mentions) {
+                    hashMap = new HashMap<>();
+                    hashMap.put("type", "user_mention");
+                    hashMap.put("value", mention);
+                    hashMap.put("sensor_name", this.sensor.getSensorName());
+                    hashMap.putAll(this.sensor.getEnrichment());
+                    hashMap.put("timestamp", System.currentTimeMillis() / 1000);
+                }
+            }
+        }catch (IOException e){
+            l.error("IOException while parsing mentions");
+            e.printStackTrace();
+        }
+
+        return hashMap;
     }
 }

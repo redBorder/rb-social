@@ -4,10 +4,10 @@
 
     <groupId>net.redborder</groupId>
     <artifactId>rb-social</artifactId>
-    <version>2.1.9-SNAPSHOT</version>
+    <version>2.1.10-SNAPSHOT</version>
 
     <scm>
-        <developerConnection>scm:git:git@gitlab.redborder.lan:agomez/rb-social.git</developerConnection>
+        <developerConnection>scm:git:git@gitlab.redborder.lan:bigdata/rb-social.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
