@@ -203,13 +203,13 @@ public class TwitterProducer extends Thread {
         Double lon = 0.00;
 
         if (geo != null) {
-            List<Double> coord = (ArrayList<Double>) geo.get("coordinates");
-            lat = coord.get(0);
-            lon = coord.get(1);
+            List<Number> coord = (ArrayList<Number>) geo.get("coordinates");
+            lat = coord.get(0).doubleValue();
+            lon = coord.get(1).doubleValue();
         } else if (coordinates != null) {
-            List<Double> coord = (ArrayList<Double>) coordinates.get("coordinates");
-            lat = coord.get(1);
-            lon = coord.get(0);
+            List<Number> coord = (ArrayList<Number>) coordinates.get("coordinates");
+            lat = coord.get(1).doubleValue();
+            lon = coord.get(0).doubleValue();
         } else {
             intoSquare = true;
         }
