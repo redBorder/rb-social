@@ -13,6 +13,8 @@ import com.twitter.hbc.core.event.Event;
 import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
+import net.redborder.social.util.ConfigFile;
+import net.redborder.social.util.Logging;
 import net.redborder.social.util.Sensor;
 import net.redborder.clusterizer.TasksChangedListener;
 
@@ -22,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by andresgomez on 29/12/14.
@@ -36,12 +40,14 @@ public class TwitterConsumer {
     private List<String> runningTask;
     private Map<String, Client> runningHbc;
 
+    private Logger logger;
 
     public TwitterConsumer(Map<String, LinkedBlockingQueue<String>> msgQueue) {
         runningTask = new ArrayList<>();
         runningHbc = new HashMap<>();
         this.msgQueue = msgQueue;
         eventQueue = new HashMap<>();
+        logger = Logging.initLogging(this.getClass().getName());
     }
 
     public void updateTasks(List<Sensor> list) {
@@ -52,18 +58,17 @@ public class TwitterConsumer {
 
         taskToRemove.addAll(runningTask);
 
-
         for (Sensor sensor : list) {
             TwitterSensor twitterSensor = (TwitterSensor) sensor;
             newTask.add(twitterSensor.getUniqueId());
             twitterSensors.add(twitterSensor);
         }
 
-        System.out.println("[Twitter] RUNNING TASK: " + runningTask);
+        logger.info("[Twitter] RUNNING TASK: " + runningTask);
         taskToRemove.removeAll(newTask);
-        System.out.println("[Twitter] TASK TO REMOVE: " + taskToRemove);
+        logger.info("[Twitter] TASK TO REMOVE: " + taskToRemove);
         newTask.removeAll(runningTask);
-        System.out.println("[Twitter] TASK TO ADD: " + newTask);
+        logger.info("[Twitter] TASK TO ADD: " + newTask);
 
         for (TwitterSensor twitterSensor : twitterSensors) {
             if (newTask.contains(twitterSensor.getUniqueId())) {
@@ -77,7 +82,7 @@ public class TwitterConsumer {
             closeClient(task);
         }
 
-        System.out.println("[Twitter] RUNNING TASK: " + runningTask);
+        logger.info("[Twitter] RUNNING TASK: " + runningTask);
     }
 
     public void closeClient(String task){
@@ -85,6 +90,7 @@ public class TwitterConsumer {
         msgQueue.remove(task);
         runningHbc.remove(task);
         client.stop();
+        logger.info("Stopped client for task " + task);
     }
 
     public void openClient(TwitterSensor sensor) {
@@ -119,7 +125,6 @@ public class TwitterConsumer {
 
         BasicReconnectionManager reconnectionManager = new BasicReconnectionManager(MAX_RECONNECTION_HOSEBIRD);
 
-
         ClientBuilder builder = new ClientBuilder()
                 .name(sensor.getSensorName())
                 .hosts(hosebirdHosts)
@@ -136,7 +141,9 @@ public class TwitterConsumer {
     }
 
     public void end(){
-        for(Client c :runningHbc.values())
+        for(Client c :runningHbc.values()) {
+            logger.info("Stopping client " + c.getName());
             c.stop();
+        }
     }
 }
