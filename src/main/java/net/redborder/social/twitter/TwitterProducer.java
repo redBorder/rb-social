@@ -9,6 +9,8 @@ import com.semantria.mapping.output.DocAnalyticData;
 import com.semantria.utils.RequestArgs;
 import com.semantria.utils.ResponseArgs;
 import com.twitter.hbc.core.endpoint.Location;
+import net.redborder.social.util.ConfigFile;
+import net.redborder.social.util.Logging;
 import net.redborder.social.util.SematriaSentiment;
 import net.redborder.social.util.Sensor;
 import net.redborder.social.util.kafka.KafkaProducer;
@@ -21,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by andresgomez on 30/12/14.
@@ -34,6 +38,9 @@ public class TwitterProducer extends Thread {
     SematriaSentiment semantria;
     List<List<String>> locations;
 
+    private Logger logger;
+
+    private final int SLEEP_DELAY = 1500;
 
     public TwitterProducer(BlockingQueue<String> msgQueue, Sensor sensor, List<List<String>> locations) {
         producer = new KafkaProducer(new ZkKafkaBrokers());
@@ -45,6 +52,7 @@ public class TwitterProducer extends Thread {
         SematriaSentiment.init();
         semantria = SematriaSentiment.getInstance();
         this.locations = locations;
+        this.logger = Logging.initLogging(this.getClass().getName());
     }
 
     @Override
@@ -71,6 +79,8 @@ public class TwitterProducer extends Thread {
                             List<String> hashtagStr = hashTagsParser(hashTags);
                             for (String hash : hashtagStr)
                                 producer.send("rb_hashtag", hash);
+                        } else {
+                            logger.fine("No hashtags found for Tweet " + data);
                         }
 
                         List<Map<String, Object>> url = (List<Map<String, Object>>) data.get("urls");
@@ -79,6 +89,8 @@ public class TwitterProducer extends Thread {
                             List<String> urlStr = urlsParser(url);
                             for (String urlS : urlStr)
                                 producer.send("rb_hashtag", urlS);
+                        } else {
+                            logger.fine("No URLs found for Tweet " + data);
                         }
 
                         List<Map<String, Object>> mentions = (List<Map<String, Object>>) data.get("user_mentions");
@@ -87,6 +99,8 @@ public class TwitterProducer extends Thread {
                             List<String> mentionStr = mentionsParser(mentions);
                             for (String mention : mentionStr)
                                 producer.send("rb_hashtag", mention);
+                        } else {
+                            logger.fine("No mentions found for " + data);
                         }
 
                         if (semantria != null) {
@@ -95,19 +109,21 @@ public class TwitterProducer extends Thread {
                                 producer.send("rb_social", msgToSend);
                         } else {
                             producer.send("rb_social", data.get("tweet"));
+                            logger.fine("Semantria is disabled. Skipping sentiment enrichment.");
                         }
                     } else {
-                        //System.out.println("Tweet -> Out of location square.");
+                        logger.warning("Could not parse tweet: " + msg);
                     }
 
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
             }
+            logger.fine("Msq queue is empty. Sleeping for " + SLEEP_DELAY + " secs");
             try {
-                Thread.sleep(1500);
+                Thread.sleep(SLEEP_DELAY);
             } catch (InterruptedException e) {
+                logger.warning("Was interrupted while consuming messages");
                 e.printStackTrace();
             }
         }
@@ -141,6 +157,8 @@ public class TwitterProducer extends Thread {
 
         if (msg != null)
             simpleTweet.put("msg", msg);
+        else
+            logger.warning("Could not get Tweet message from " + msg);
 
         Map<String, Object> user = (Map<String, Object>) complexTweet.get("user");
 
@@ -218,11 +236,6 @@ public class TwitterProducer extends Thread {
             for (List<String> location : locations) {
                 String[] longLatSouthWest = location.get(0).split(",");
                 String[] longLatNorthEast = location.get(1).split(",");
-
-                //System.out.println("LAT: " + lat);
-                //System.out.println(" > " + Double.valueOf(longLatSouthWest[1].trim()) + " < " + Double.valueOf(longLatNorthEast[1].trim()));
-                //System.out.println("LONG: " + lon);
-                //System.out.println(" > " +  Double.valueOf(longLatSouthWest[0].trim()) + " < " +  Double.valueOf(longLatNorthEast[0].trim()));
 
                 if (lat != 0 && lon != 0) {
                     if (lat > Double.valueOf(longLatSouthWest[1].trim()) && lat < Double.valueOf(longLatNorthEast[1].trim()) && lon > Double.valueOf(longLatSouthWest[0].trim()) && lon < Double.valueOf(longLatNorthEast[0].trim())) {

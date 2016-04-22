@@ -31,6 +31,9 @@ public class ConfigFile {
     private Map<SensorType, List<Sensor>> _sensors;
     private Map<String, Object> _general;
     private Map<SensorType, List<Sensor>> _sensorNames;
+    private Map<String, Object> loggerConfig;
+
+    private final String DEFAULT_LOG_LEVEL = "INFO";
 
     public static ConfigFile getInstance() {
         if (theInstance == null) {
@@ -71,6 +74,8 @@ public class ConfigFile {
 
             /* Production Config */
         List<Map<String, Object>> sensors = (List<Map<String, Object>>) map.get("sensors");
+
+        loggerConfig = (Map<String, Object>) map.get("logger");
 
         List<Sensor> twitterList = new ArrayList<>();
         List<Sensor> instagramList = new ArrayList<>();
@@ -163,6 +168,22 @@ public class ConfigFile {
 
     public String getZkConnect() {
         return (String) getFromGeneral("zk_connect");
+    }
+
+    public Map<String, Object> getLoggerConfig() {
+        return this.loggerConfig;
+    }
+
+    public String getLogLevel() {
+        if (loggerConfig == null)
+            return DEFAULT_LOG_LEVEL;
+
+        String logLevel = (String) loggerConfig.get("level");
+        if (logLevel == null) {
+            return DEFAULT_LOG_LEVEL;
+        } else {
+            return logLevel;
+        }
     }
 
 
