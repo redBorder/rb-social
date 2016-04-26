@@ -75,7 +75,7 @@ public class TwitterProducer extends Thread {
 
                         List<Map<String, Object>> hashTags = (List<Map<String, Object>>) data.get("hashtags");
 
-                        if (!hashTags.isEmpty()) {
+                        if (hashTags != null && !hashTags.isEmpty()) {
                             List<String> hashtagStr = hashTagsParser(hashTags);
                             for (String hash : hashtagStr)
                                 producer.send("rb_hashtag", hash);
@@ -85,7 +85,7 @@ public class TwitterProducer extends Thread {
 
                         List<Map<String, Object>> url = (List<Map<String, Object>>) data.get("urls");
 
-                        if (!url.isEmpty()) {
+                        if (url != null && !url.isEmpty()) {
                             List<String> urlStr = urlsParser(url);
                             for (String urlS : urlStr)
                                 producer.send("rb_hashtag", urlS);
@@ -95,7 +95,7 @@ public class TwitterProducer extends Thread {
 
                         List<Map<String, Object>> mentions = (List<Map<String, Object>>) data.get("user_mentions");
 
-                        if (!mentions.isEmpty()) {
+                        if (mentions != null && !mentions.isEmpty()) {
                             List<String> mentionStr = mentionsParser(mentions);
                             for (String mention : mentionStr)
                                 producer.send("rb_hashtag", mention);
