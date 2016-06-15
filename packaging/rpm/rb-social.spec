@@ -22,18 +22,28 @@ Requires: java
 export MAVEN_OPTS="-Xmx512m -Xms256m -Xss10m -XX:MaxPermSize=512m" && mvn clean package
 
 %install
-mkdir -p %{buildroot}/usr/share/%{name}
-install -D -m 644 target/rb-social-*-selfcontained.jar %{buildroot}/usr/share/%{name}
+mkdir -p %{buildroot}/usr/lib/%{name}
+install -D -m 644 target/rb-social-*-selfcontained.jar %{buildroot}/usr/lib/%{name}
+mv %{buildroot}/usr/lib/%{name}/rb-social-*-selfcontained.jar %{buildroot}/usr/lib/%{name}/rb-social.jar
+install -D -m 644 rb-social.service %{buildroot}/usr/lib/systemd/system/rb-social.service
 
 %clean
 rm -rf %{buildroot}
+
+%pre
+getent group %{name} >/dev/null || groupadd -r %{name}
+getent passwd %{name} >/dev/null || \
+    useradd -r -g %{name} -d / -s /sbin/nologin \
+    -c "User of %{name} service" %{name}
+exit 0
 
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
 %files
 %defattr(644,root,root)
-/usr/share/%{name}/rb-social-*-selfcontained.jar
+/usr/lib/%{name}
+/usr/lib/systemd/system/rb-social.service
 
 %changelog
 * Tue Jun 14 2016 Carlos J. Mateos  <cjmateos@redborder.com> - 1.0.0-1
