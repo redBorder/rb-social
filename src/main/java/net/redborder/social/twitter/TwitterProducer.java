@@ -245,6 +245,8 @@ public class TwitterProducer extends Thread {
                     }
                 }
             }
+        } else if (lat != 0 && lon != 0) {
+          simpleTweet.put("client_latlong", lat + "," + lon);
         }
 
         Map<String, Object> place = (Map<String, Object>) complexTweet.get("place");
