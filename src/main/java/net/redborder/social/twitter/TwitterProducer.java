@@ -215,7 +215,7 @@ public class TwitterProducer extends Thread {
         Map<String, Object> coordinates = (Map<String, Object>) complexTweet.get("coordinates");
 
 
-        boolean squares_defined = !locations.isEmpty;
+        boolean squares_defined = !locations.isEmpty();
 
         Double lat = 0.00;
         Double lon = 0.00;
