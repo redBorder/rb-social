@@ -215,7 +215,7 @@ public class TwitterProducer extends Thread {
         Map<String, Object> coordinates = (Map<String, Object>) complexTweet.get("coordinates");
 
 
-        boolean intoSquare = false;
+        boolean squares_defined = !locations.isEmpty;
 
         Double lat = 0.00;
         Double lon = 0.00;
@@ -228,23 +228,20 @@ public class TwitterProducer extends Thread {
             List<Number> coord = (ArrayList<Number>) coordinates.get("coordinates");
             lat = coord.get(1).doubleValue();
             lon = coord.get(0).doubleValue();
-        } else {
-            intoSquare = true;
         }
 
-        if (!intoSquare) {
+        if (squares_defined && lat != 0 && lon != 0) {
             for (List<String> location : locations) {
                 String[] longLatSouthWest = location.get(0).split(",");
                 String[] longLatNorthEast = location.get(1).split(",");
 
-                if (lat != 0 && lon != 0) {
-                    if (lat > Double.valueOf(longLatSouthWest[1].trim()) && lat < Double.valueOf(longLatNorthEast[1].trim()) && lon > Double.valueOf(longLatSouthWest[0].trim()) && lon < Double.valueOf(longLatNorthEast[0].trim())) {
-                        simpleTweet.put("client_latlong", lat + "," + lon);
-                        intoSquare = true;
-                        break;
-                    }
+                if (lat > Double.valueOf(longLatSouthWest[1].trim()) && lat < Double.valueOf(longLatNorthEast[1].trim()) && lon > Double.valueOf(longLatSouthWest[0].trim()) && lon < Double.valueOf(longLatNorthEast[0].trim())) {
+                    simpleTweet.put("client_latlong", lat + "," + lon);
+                    break;
                 }
             }
+        } else if (squares_defined){
+          return null;
         } else if (lat != 0 && lon != 0) {
           simpleTweet.put("client_latlong", lat + "," + lon);
         }
@@ -261,7 +258,7 @@ public class TwitterProducer extends Thread {
                 simpleTweet.put("msg_send_from", tweet_loc);
         }
 
-      /*  Integer retweet_count = (Integer) complexTweet.get("retweet_count");
+        /* Integer retweet_count = (Integer) complexTweet.get("retweet_count");
         Integer favorite_count = (Integer) complexTweet.get("favorite_count");
 
         if (retweet_count != null)
@@ -336,10 +333,7 @@ public class TwitterProducer extends Thread {
             data.put("tweet", mapper.writeValueAsString(simpleTweet));
         }
 
-        if (intoSquare)
-            return data;
-        else
-            return null;
+        return data;
     }
 
     public List<String> hashTagsParser(List<Map<String, Object>> hashtags) throws IOException {
