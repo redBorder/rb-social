@@ -1,4 +1,4 @@
-Name:     rb-social
+Name:     redborder-social
 Version:  %{__version}
 Release:  %{__release}%{?dist}
 

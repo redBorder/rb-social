@@ -1,4 +1,4 @@
-PACKAGE_NAME?=	rb-social
+PACKAGE_NAME?=	redborder-social
 
 VERSION?=	$(shell git describe --abbrev=6 --tags HEAD --always | sed 's/-/_/g')
 
