@@ -2,7 +2,7 @@
 Description=redborder social module
 
 [Service]
-ExecStart='java -jar /usr/lib/rb-social/rb-social.jar'
+ExecStart='java -jar /usr/lib/redborder-social/rb-social.jar'
 Restart=always
 User=rb-social
 Group=rb-social
