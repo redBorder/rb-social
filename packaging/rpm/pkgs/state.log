@@ -102,3 +102,81 @@
 2021-11-29 16:23:06,545 - Start: clean chroot
 2021-11-29 16:23:11,839 - Finish: clean chroot
 2021-11-29 16:23:11,841 - Finish: run
+2021-11-30 09:12:41,424 - Mock Version: 2.14
+2021-11-30 09:12:43,674 - Start: yum update
+2021-11-30 09:12:50,398 - Finish: yum update
+2021-11-30 09:12:50,409 - Finish: chroot init
+2021-11-30 09:12:50,416 - Start: buildsrpm
+2021-11-30 09:12:50,495 - Start: rpmbuild -bs
+2021-11-30 09:12:55,409 - Finish: rpmbuild -bs
+2021-11-30 09:12:55,505 - Finish: buildsrpm
+2021-11-30 09:12:55,508 - Start: clean chroot
+2021-11-30 09:12:59,043 - Finish: clean chroot
+2021-11-30 09:12:59,045 - Finish: run
+2021-11-30 09:13:03,100 - Mock Version: 2.14
+2021-11-30 09:13:06,063 - Start: yum update
+2021-11-30 09:13:09,976 - Finish: yum update
+2021-11-30 09:13:09,983 - Finish: chroot init
+2021-11-30 09:13:09,986 - Start: build phase for redborder-social-0.0.1-1.el7.rb.src.rpm
+2021-11-30 09:13:09,987 - Start: build setup for redborder-social-0.0.1-1.el7.rb.src.rpm
+2021-11-30 09:13:37,083 - Finish: build setup for redborder-social-0.0.1-1.el7.rb.src.rpm
+2021-11-30 09:13:37,083 - Start: Outputting list of installed packages
+2021-11-30 09:13:37,404 - Finish: Outputting list of installed packages
+2021-11-30 09:13:37,404 - Start: rpmbuild redborder-social-0.0.1-1.el7.rb.src.rpm
+2021-11-30 09:16:01,366 - Finish: rpmbuild redborder-social-0.0.1-1.el7.rb.src.rpm
+2021-11-30 09:16:01,794 - Finish: build phase for redborder-social-0.0.1-1.el7.rb.src.rpm
+2021-11-30 09:16:01,801 - Start: clean chroot
+2021-11-30 09:16:07,139 - Finish: clean chroot
+2021-11-30 09:16:07,140 - Finish: run
+2021-11-30 09:46:10,789 - Mock Version: 2.14
+2021-11-30 09:46:12,995 - Start: yum update
+2021-11-30 09:46:17,659 - Finish: yum update
+2021-11-30 09:46:17,673 - Finish: chroot init
+2021-11-30 09:46:17,681 - Start: buildsrpm
+2021-11-30 09:46:17,762 - Start: rpmbuild -bs
+2021-11-30 09:46:22,679 - Finish: rpmbuild -bs
+2021-11-30 09:46:22,772 - Finish: buildsrpm
+2021-11-30 09:46:22,774 - Start: clean chroot
+2021-11-30 09:46:26,224 - Finish: clean chroot
+2021-11-30 09:46:26,225 - Finish: run
+2021-11-30 09:46:30,259 - Mock Version: 2.14
+2021-11-30 09:46:32,655 - Start: yum update
+2021-11-30 09:46:36,134 - Finish: yum update
+2021-11-30 09:46:36,153 - Finish: chroot init
+2021-11-30 09:46:36,159 - Start: build phase for redborder-social-0.0.1-1.el7.rb.src.rpm
+2021-11-30 09:46:36,161 - Start: build setup for redborder-social-0.0.1-1.el7.rb.src.rpm
+2021-11-30 09:47:03,514 - Finish: build setup for redborder-social-0.0.1-1.el7.rb.src.rpm
+2021-11-30 09:47:03,515 - Start: Outputting list of installed packages
+2021-11-30 09:47:03,842 - Finish: Outputting list of installed packages
+2021-11-30 09:47:03,842 - Start: rpmbuild redborder-social-0.0.1-1.el7.rb.src.rpm
+2021-11-30 09:49:35,134 - Finish: rpmbuild redborder-social-0.0.1-1.el7.rb.src.rpm
+2021-11-30 09:49:35,530 - Finish: build phase for redborder-social-0.0.1-1.el7.rb.src.rpm
+2021-11-30 09:49:35,536 - Start: clean chroot
+2021-11-30 09:49:40,936 - Finish: clean chroot
+2021-11-30 09:49:40,937 - Finish: run
+2021-12-01 09:50:33,226 - Mock Version: 2.14
+2021-12-01 09:50:36,837 - Start: yum update
+2021-12-01 09:50:42,867 - Finish: yum update
+2021-12-01 09:50:42,876 - Finish: chroot init
+2021-12-01 09:50:42,881 - Start: buildsrpm
+2021-12-01 09:50:42,959 - Start: rpmbuild -bs
+2021-12-01 09:50:47,893 - Finish: rpmbuild -bs
+2021-12-01 09:50:47,980 - Finish: buildsrpm
+2021-12-01 09:50:47,982 - Start: clean chroot
+2021-12-01 09:50:51,463 - Finish: clean chroot
+2021-12-01 09:50:51,464 - Finish: run
+2021-12-01 09:50:55,480 - Mock Version: 2.14
+2021-12-01 09:50:57,993 - Start: yum update
+2021-12-01 09:51:02,621 - Finish: yum update
+2021-12-01 09:51:02,629 - Finish: chroot init
+2021-12-01 09:51:02,632 - Start: build phase for redborder-social-0.0.1-1.el7.rb.src.rpm
+2021-12-01 09:51:02,633 - Start: build setup for redborder-social-0.0.1-1.el7.rb.src.rpm
+2021-12-01 09:51:28,150 - Finish: build setup for redborder-social-0.0.1-1.el7.rb.src.rpm
+2021-12-01 09:51:28,150 - Start: Outputting list of installed packages
+2021-12-01 09:51:28,474 - Finish: Outputting list of installed packages
+2021-12-01 09:51:28,474 - Start: rpmbuild redborder-social-0.0.1-1.el7.rb.src.rpm
+2021-12-01 09:54:00,272 - Finish: rpmbuild redborder-social-0.0.1-1.el7.rb.src.rpm
+2021-12-01 09:54:00,636 - Finish: build phase for redborder-social-0.0.1-1.el7.rb.src.rpm
+2021-12-01 09:54:00,647 - Start: clean chroot
+2021-12-01 09:54:06,137 - Finish: clean chroot
+2021-12-01 09:54:06,138 - Finish: run

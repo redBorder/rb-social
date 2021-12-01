@@ -3,13 +3,12 @@ Version:  %{__version}
 Release:  %{__release}%{?dist}
 
 License:  GNU AGPLv3
-URL:  https://github.com/redBorder/rb-social/tree/development
+URL:  https://github.com/redBorder/rb-social
 Source0: %{name}-%{version}.tar.gz
 
 BuildRequires: maven java-devel
 
 Summary: redborder social module
-Group: Services/Monitoring
 Requires: java
 
 %description
@@ -41,7 +40,7 @@ exit 0
 %postun -p /sbin/ldconfig
 
 %files
-%defattr(644,root,root)
+%defattr(644,%{name},%{name})
 /usr/lib/%{name}
 /usr/lib/systemd/system/redborder-social.service
 
