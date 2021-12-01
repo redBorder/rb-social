@@ -2,7 +2,7 @@
 Description=redborder social module
 
 [Service]
-WorkingDirectory=/opt/prod
+WorkingDirectory=/usr/lib/redborder-social
 ExecStart=/bin/java -jar rb-social.jar
 Restart=always
 User=redborder-social

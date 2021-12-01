@@ -40,8 +40,9 @@ exit 0
 %postun -p /sbin/ldconfig
 
 %files
-%defattr(644,%{name},%{name})
+%defattr(755,root,root)
 /usr/lib/%{name}
+%defattr(644,root,root)
 /usr/lib/systemd/system/redborder-social.service
 
 %changelog
