@@ -27,11 +27,11 @@ public class ConfigFile {
 
     private static ConfigFile theInstance = null;
     private static final Object initMonitor = new Object();
-
+    private String path;
     File f = new File("/etc/redborder-social/config.yml");
     if(f.exists() && !f.isDirectory()) {
-	   String path = "/etc/redborder-social/config.yml";} // Centos 7
-    else { String path = "/opt/rb/etc/rb-social/config.yml";} // Centos 6
+	   path = "/etc/redborder-social/config.yml";} // Centos 7
+    else { path = "/opt/rb/etc/rb-social/config.yml";} // Centos 6
 	   
     private final String CONFIG_FILE_PATH = path;
     
