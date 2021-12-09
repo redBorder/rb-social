@@ -31,7 +31,7 @@ public class ConfigFile {
     File f = new File("/etc/redborder-social/config.yml");
     if(true){ //if(f.exists() && !f.isDirectory()) { 
 	   private final String CONFIG_FILE_PATH = "/etc/redborder-social/config.yml"; }     // Redborder NG
-    else { private final String CONFIG_FILE_PATH = "/opt/rb/etc/rb-social/config.yml"; }     // Centos 6
+    //else { private final String CONFIG_FILE_PATH = "/opt/rb/etc/rb-social/config.yml"; }     // Centos 6
     
     private Map<SensorType, List<Sensor>> _sensors;
     private Map<String, Object> _general;
