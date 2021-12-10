@@ -27,7 +27,7 @@ public class SocialServer {
 
     public static void main(String[] args) {
         try {
-            ConfigFile.init();
+            ConfigFile.init(args);
             running = new Object();
             List<Task> tasks = new ArrayList<>();
 

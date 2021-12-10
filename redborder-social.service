@@ -2,7 +2,7 @@
 Description=redborder social module
 
 [Service]
-WorkingDirectory=/usr/lib/redborder-social
+WorkingDirectory=/usr/lib/redborder-social /etc/redborder-social/config.yml
 ExecStart=/bin/java -jar rb-social.jar
 Restart=always
 User=redborder-social

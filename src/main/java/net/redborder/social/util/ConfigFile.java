@@ -27,19 +27,11 @@ public class ConfigFile {
 
     private static ConfigFile theInstance = null;
     private static final Object initMonitor = new Object();
-    private String path;
-    File f = new File("/etc/redborder-social/config.yml");
-    int time = 20;
-    if (time < 18) {
-       System.out.println("Good day.");
-    } else {
-       System.out.println("Good evening.");
     
-    // if(f.exists() && !f.isDirectory()) {
-	   path = "/etc/redborder-social/config.yml";} // Centos 7
-    else { path = "/opt/rb/etc/rb-social/config.yml";} // Centos 6
+	 //  path = "/etc/redborder-social/config.yml";} // Centos 7
+         //  path = "/opt/rb/etc/rb-social/config.yml";} // Centos 6
 	   
-    private final String CONFIG_FILE_PATH = path;
+    private final String CONFIG_FILE_PATH;
     
     private Map<SensorType, List<Sensor>> _sensors;
     private Map<String, Object> _general;
@@ -48,6 +40,7 @@ public class ConfigFile {
 
     private final String DEFAULT_LOG_LEVEL = "INFO";
 
+   
     public static ConfigFile getInstance() {
         if (theInstance == null) {
             synchronized (initMonitor) {
@@ -63,10 +56,14 @@ public class ConfigFile {
         return theInstance;
     }
 
-    public static void init() throws FileNotFoundException {
+    public static void init(String args) throws FileNotFoundException {
         synchronized (initMonitor) {
             if (theInstance == null) {
+                if(args.length == 0) {
                 theInstance = new ConfigFile();
+                } else {
+                theInstance = new ConfigFile(args[0]);
+                }
                 initMonitor.notifyAll();
             }
         }
@@ -76,8 +73,15 @@ public class ConfigFile {
      * Constructor
      */
     public ConfigFile() throws FileNotFoundException {
+        CONFIG_FILE_PATH = "/opt/rb/etc/rb-social/config.yml";   // Centos 6
         reload();
     }
+   
+    public ConfigFile(String path) throws FileNotFoundException { 
+        CONFIG_FILE_PATH = path;                                 // Centos 7
+        reload();
+    }
+
 
     public void reload() throws FileNotFoundException {
         _sensors = new HashMap<>();
