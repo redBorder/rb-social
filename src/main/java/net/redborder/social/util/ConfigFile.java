@@ -59,7 +59,7 @@ public class ConfigFile {
     public static void init(String args) throws FileNotFoundException {
         synchronized (initMonitor) {
             if (theInstance == null) {
-                if(args.length == 0) {
+                if(args.length() == 0) {
                 theInstance = new ConfigFile();
                 } else {
                 theInstance = new ConfigFile(args[0]);
