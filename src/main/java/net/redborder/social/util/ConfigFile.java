@@ -27,10 +27,7 @@ public class ConfigFile {
 
     private static ConfigFile theInstance = null;
     private static final Object initMonitor = new Object();
-    
-	 //  path = "/etc/redborder-social/config.yml";} // Centos 7
-         //  path = "/opt/rb/etc/rb-social/config.yml";} // Centos 6
-	   
+
     private final String CONFIG_FILE_PATH;
     
     private Map<SensorType, List<Sensor>> _sensors;
