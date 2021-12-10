@@ -29,7 +29,12 @@ public class ConfigFile {
     private static final Object initMonitor = new Object();
     private String path;
     File f = new File("/etc/redborder-social/config.yml");
-    if (20 > 18) {
+    int time = 20;
+    if (time < 18) {
+       System.out.println("Good day.");
+    } else {
+       System.out.println("Good evening.");
+    
     // if(f.exists() && !f.isDirectory()) {
 	   path = "/etc/redborder-social/config.yml";} // Centos 7
     else { path = "/opt/rb/etc/rb-social/config.yml";} // Centos 6
