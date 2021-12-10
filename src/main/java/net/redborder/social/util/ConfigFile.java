@@ -56,7 +56,7 @@ public class ConfigFile {
         return theInstance;
     }
 
-    public static void init(String args) throws FileNotFoundException {
+    public static void init(String[] args) throws FileNotFoundException {
         synchronized (initMonitor) {
             if (theInstance == null) {
                 if(args.length() == 0) {
