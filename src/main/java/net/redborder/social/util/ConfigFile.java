@@ -29,7 +29,8 @@ public class ConfigFile {
     private static final Object initMonitor = new Object();
     private String path;
     File f = new File("/etc/redborder-social/config.yml");
-    if(f.exists() && !f.isDirectory()) {
+    if (true) {
+    // if(f.exists() && !f.isDirectory()) {
 	   path = "/etc/redborder-social/config.yml";} // Centos 7
     else { path = "/opt/rb/etc/rb-social/config.yml";} // Centos 6
 	   
