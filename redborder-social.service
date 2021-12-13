@@ -2,12 +2,8 @@
 Description=redborder social module
 
 [Service]
-EnvironmentFile=-/etc/sysconfig/rb-social_sysconfig
-
-JAVAOPTS="-Xmx${MEMTOTAL}k -Xms${MEMTOTAL}k"
-
 WorkingDirectory=/usr/lib/redborder-social
-ExecStart=/bin/java -jar rb-social.jar $JAVAOPTS /etc/redborder-social/config.yml
+ExecStart=/bin/java -jar rb-social.jar /etc/redborder-social/config.yml
 Restart=always
 User=redborder-social
 Type=simple
