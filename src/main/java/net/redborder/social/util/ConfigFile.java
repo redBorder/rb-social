@@ -56,10 +56,15 @@ public class ConfigFile {
     public static void init(String[] args) throws FileNotFoundException {
         synchronized (initMonitor) {
             if (theInstance == null) {
-                // Getting the file by creating object of File class
-                File f = new File(args[0]);
-                // Check whether the file exists (in that case it's Centos 7) or not (Centos 6)
-                theInstance = ((f.exists()) ? new ConfigFile(args[0]) : new ConfigFile());
+                if(args.length == 0) {
+                    theInstance = new ConfigFile();
+                } else {
+                    // Getting the file by creating object of File class
+                    File f = new File(args[0]);
+                    // Check whether the file exists (in that case it's Centos 7) or not (Centos 6)
+                    theInstance = ((f.exists()) ? new ConfigFile(args[0]) : new ConfigFile());
+                    
+                }
                 initMonitor.notifyAll();
             }
         }
