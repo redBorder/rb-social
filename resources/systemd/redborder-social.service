@@ -3,11 +3,13 @@ Description=redborder social module
 
 [Service]
 WorkingDirectory=/usr/lib/redborder-social
-ExecStart=/bin/java -jar rb-social.jar /etc/redborder-social/config.yml
+EnvironmentFile=/etc/sysconfig/redborder-social
+ExecStart=/bin/java -jar -Xmx${MEMTOTAL}k -Xms${MEMTOTAL}k rb-social.jar /etc/redborder-social/config.yml
 Restart=always
 User=redborder-social
 Type=simple
 SuccessExitStatus=143
+SyslogIdentifier=redborder-social
 
 [Install]
 WantedBy=multi-user.target
