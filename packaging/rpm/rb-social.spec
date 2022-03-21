@@ -24,7 +24,7 @@ export MAVEN_OPTS="-Xmx512m -Xms256m -Xss10m -XX:MaxPermSize=512m" && mvn clean 
 mkdir -p %{buildroot}/usr/lib/%{name}
 install -D -m 644 target/rb-social-*-selfcontained.jar %{buildroot}/usr/lib/%{name}
 mv %{buildroot}/usr/lib/%{name}/rb-social-*-selfcontained.jar %{buildroot}/usr/lib/%{name}/rb-social.jar
-install -D -m 644 redborder-social.service %{buildroot}/usr/lib/systemd/system/redborder-social.service
+install -D -m 644 resources/systemd/redborder-social.service %{buildroot}/usr/lib/systemd/system/redborder-social.service
 
 %clean
 rm -rf %{buildroot}
