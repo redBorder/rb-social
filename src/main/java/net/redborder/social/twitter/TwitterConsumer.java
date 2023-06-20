@@ -64,11 +64,11 @@ public class TwitterConsumer {
             twitterSensors.add(twitterSensor);
         }
 
-        logger.info("[Twitter] RUNNING TASK: " + runningTask);
+        logger.info("[Twitter] RUNNING TASK: " + runningTask.toString());
         taskToRemove.removeAll(newTask);
-        logger.info("[Twitter] TASK TO REMOVE: " + taskToRemove);
+        logger.info("[Twitter] TASK TO REMOVE: " + taskToRemove.toString());
         newTask.removeAll(runningTask);
-        logger.info("[Twitter] TASK TO ADD: " + newTask);
+        logger.info("[Twitter] TASK TO ADD: " + newTask.toString());
 
         for (TwitterSensor twitterSensor : twitterSensors) {
             if (newTask.contains(twitterSensor.getUniqueId())) {
@@ -82,28 +82,35 @@ public class TwitterConsumer {
             closeClient(task);
         }
 
-        logger.info("[Twitter] RUNNING TASK: " + runningTask);
+        logger.info("[Twitter] RUNNING TASK: " + runningTask.toString());
     }
 
     public void closeClient(String task){
         Client client = runningHbc.get(task);
         msgQueue.remove(task);
         runningHbc.remove(task);
+        logger.info("Stopping client");
         client.stop();
-        logger.info("Stopped client for task " + task);
+        logger.info("Stopped client for task " + task.toString());
     }
 
     public void openClient(TwitterSensor sensor) {
+        logger.info("Opening twitter client for sensor " + sensor.toString());
+        logger.info("STREAM_HOST: " + Constants.STREAM_HOST.toString());
         Hosts hosebirdHosts = new HttpHosts(Constants.STREAM_HOST);
+        logger.info("hb Hosts created: " + hosebirdHosts.toString());
         StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
+        logger.info("Endpoint filtered: " + endpoint.toString());
 
         msgQueue.put(sensor.getUniqueId(), new LinkedBlockingQueue<String>(100000));
         eventQueue.put(sensor.getUniqueId(), new LinkedBlockingQueue<Event>(10000));
 
         if (!sensor.getTextFilters().isEmpty())
+            logger.info("text filters is not empty");
             endpoint.trackTerms(sensor.getTextFilters());
 
         if (!sensor.getLocationFilters().isEmpty()) {
+            logger.info("location filters are not empty");
             List<Location> locations = new ArrayList<>();
 
             for (List<String> location : sensor.getLocationFilters()) {
@@ -112,19 +119,30 @@ public class TwitterConsumer {
                 String[] longLatNorthEast = location.get(1).split(",");
                 Location.Coordinate northeast = new Location.Coordinate(Double.valueOf(longLatNorthEast[0].trim()), Double.valueOf(longLatNorthEast[1].trim()));
                 Location loc = new Location(southwest, northeast);
+                logger.info("Location added: " + loc.toString());
                 locations.add(loc);
             }
 
             endpoint.locations(locations);
         }
 
-        Authentication hosebirdAuth = new OAuth1(sensor.getConsumerKey(),
-                sensor.getConsumerSecret(),
-                sensor.getTokenKey(),
-                sensor.getTokenSecret());
+        // Is this Auth method outdated?
+        logger.info("Creating autentication token(?)");
+        logger.info("ConsumerKey: " + sensor.getConsumerKey().toString());
+        Authentication hosebirdAuth = new OAuth1(
+            sensor.getConsumerKey(),
+            sensor.getConsumerSecret(),
+            sensor.getTokenKey(),
+            sensor.getTokenSecret()
+        );
+        logger.info("Creating autentication token(?)");
+        logger.info("AUTH: " + hosebirdAuth.toString());
 
+        logger.info("RECONNECTION MAX: " + MAX_RECONNECTION_HOSEBIRD);
+        logger.info("Reconecting");
         BasicReconnectionManager reconnectionManager = new BasicReconnectionManager(MAX_RECONNECTION_HOSEBIRD);
-
+        logger.info("After reconection: " + reconnectionManager.toString());
+        logger.info("Building client");
         ClientBuilder builder = new ClientBuilder()
                 .name(sensor.getSensorName())
                 .hosts(hosebirdHosts)
@@ -135,8 +153,10 @@ public class TwitterConsumer {
                 .eventMessageQueue(eventQueue.get(sensor.getUniqueId()));
 
         Client hbc = builder.build();
-
+        logger.info("building client finished");
+        logger.info("conecting client");
         hbc.connect();
+        logger.info("connection finisehd");
         runningHbc.put(sensor.getUniqueId(), hbc);
     }
 
