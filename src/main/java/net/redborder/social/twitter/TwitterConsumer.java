@@ -51,7 +51,7 @@ public class TwitterConsumer {
     }
 
     public void updateTasks(List<Sensor> list) {
-
+        logger.info("UPDATING TASKS");
         List<String> newTask = new ArrayList<>();
         List<String> taskToRemove = new ArrayList<>();
         List<TwitterSensor> twitterSensors = new ArrayList<>();
@@ -82,7 +82,7 @@ public class TwitterConsumer {
             closeClient(task);
         }
 
-        logger.info("[Twitter] RUNNING TASK: " + runningTask.toString());
+        logger.info("[Twitter] RUNNING TASK PEPE: " + runningTask.toString());
     }
 
     public void closeClient(String task){
@@ -99,7 +99,11 @@ public class TwitterConsumer {
         logger.info("STREAM_HOST: " + Constants.STREAM_HOST.toString());
         Hosts hosebirdHosts = new HttpHosts(Constants.STREAM_HOST);
         logger.info("hb Hosts created: " + hosebirdHosts.toString());
+        //New endpoint: https://api.twitter.com/2/tweets/search/stream/rules
+        // Old endpoint: com.twitter.hbc.core.endpoint.StatusesFilterEndpoint@3253edb
+        // URI: https://stream.twitter.com/1.1/statuses/filter.json?track=keyword1,keyword2
         StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
+        logger.info("URI endpoint: " + endpoint.getURI().toString());
         logger.info("Endpoint filtered: " + endpoint.toString());
 
         msgQueue.put(sensor.getUniqueId(), new LinkedBlockingQueue<String>(100000));
